@@ -73,3 +73,21 @@ Network::Network(int n, double percent_fast, double percent_high_cpu)
         }
     }
 }
+
+void Network::create_genesis()
+{
+    auto *genesis = new Block();
+    // create coinbase transaction for each node with initial bitcoin
+    for (int i = 0; i < n; i++)
+    {
+        auto temp = Transaction(i,initial_bitcoin,true);
+        genesis->transactions.push_back(temp);
+    }
+
+    // Add genesis block to all node
+    for (int i = 0; i < n; i++)
+    {
+        nodes[i].genesis = genesis;
+        nodes[i].leaves.push_back({genesis,1});
+    }
+}

@@ -2,6 +2,9 @@
 #define NETWORK_H
 
 #include <vector>
+#include <list>
+#include "Blockchain.h"
+
 using namespace std;
 
 class Link
@@ -24,6 +27,8 @@ class Node{
     bool fast;
     bool high_cpu;
     vector<Link> peers;
+    Block *genesis;
+    list <LeafNode> leaves;
 
     Node();
 };
@@ -31,9 +36,11 @@ class Node{
 class Network{
   public:
   int n;
+  int initial_bitcoin = 50;
   vector<Node> nodes;
 
   Network(int n, double percent_fast, double percent_high_cpu);
+  void create_genesis();
 };
 
 #endif //NETWORK_H

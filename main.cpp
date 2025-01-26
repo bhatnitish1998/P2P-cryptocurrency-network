@@ -1,5 +1,7 @@
 #include "Network.h"
 
+
+
 int main()
 {
     // Simulation parameters
@@ -13,7 +15,13 @@ int main()
 
     // TODO 1: take the parameters from command line arguments
 
+    // Create the network of nodes
     Network network(number_of_nodes,percent_fast,percent_high_cpu);
+
+    // Initialize each node with genesis block
+    network.create_genesis();
+
+
 
 
 
