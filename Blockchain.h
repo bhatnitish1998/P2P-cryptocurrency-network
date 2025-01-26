@@ -6,7 +6,9 @@
 #define BLOCKCHAIN_H
 
 #include <vector>
+#include <ostream>
 using namespace std;
+
 
 class Transaction
 {
@@ -21,8 +23,10 @@ class Transaction
 
     Transaction(int receiver, double amount, bool coinbase, int sender = -1);
 
-    // TODO 5: Override output operator to print transaction
+    
+    // DONE 5: Override output operator to print transaction
     // TxnID: IDx pays IDy C coins , TxnID:IDk mines 50 coins
+    friend ostream& operator<<(ostream& os, const Transaction& txn);
 };
 
 class Block

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <iostream>
 #include "Blockchain.h"
 
 using namespace std;
