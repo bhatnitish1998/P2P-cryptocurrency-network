@@ -15,4 +15,6 @@ int main()
 
     Network network(number_of_nodes,percent_fast,percent_high_cpu);
 
+
+
 }

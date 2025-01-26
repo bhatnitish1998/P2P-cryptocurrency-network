@@ -34,26 +34,42 @@ Network::Network(int n, double percent_fast, double percent_high_cpu)
 
     while (!done)
     {
+        al.clear();
         for (int i = 0; i < n; i++)
         {
-            // TODO 2: Choose 3-6(random between 3-6) nodes from n other than i (use utility.cpp)
-            vector<int> temp = choose_neighbours(n,i);
-            for (auto x: temp) al[i].push_back(x);
+            int min_peers = 3;
 
+            while (al[i].size() < min_peers)
+            {
+                vector<int> temp = choose_neighbours(n,min_peers-al[i].size(),al[i]);
+                for (auto neighbour : temp)
+                {
+                    if (neighbour!=i && al[neighbour].size() < 6)
+                    {
+                        al[i].push_back(neighbour);
+                        al[neighbour].push_back(i);
+                    }
+                }
+            }
         }
 
         // TODO 3: Write check_connected using dfs
         done = check_connected(al);
+
     }
 
     for (int i = 0; i < n; i++)
     {
         for (auto x: al[i])
         {
-            // TODO 4: choose propagation delay from uniform distribution (10,500)
-            int propagation_delay = uniform_distribution(10,500);
-            int link_speed = nodes[i].fast && nodes[x].fast?100:5;
-            nodes[i].peers.emplace_back(x,propagation_delay,link_speed);
+            if (i < x)
+            {
+                // TODO 4: choose propagation delay from uniform distribution (10,500)
+                int propagation_delay = uniform_distribution(10,500);
+                int link_speed = nodes[i].fast && nodes[x].fast?100:5;
+                nodes[i].peers.emplace_back(x,propagation_delay,link_speed);
+                nodes[x].peers.emplace_back(i,propagation_delay,link_speed);
+            }
         }
     }
 }

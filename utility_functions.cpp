@@ -6,7 +6,7 @@
   return {0,1};
 }
 
- vector<int> choose_neighbours(int n, int i)
+ vector<int> choose_neighbours(int n, int k, vector<int> excluded)
 {
   return {0,1};
 }
