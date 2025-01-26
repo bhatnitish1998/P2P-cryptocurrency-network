@@ -4,6 +4,8 @@
 #include <vector>
 using namespace std;
 
+extern unsigned int global_seed;
+
 // TODO 2: from [0,n) choose percent numbers and return its vector
 vector<int> choose_percent(int n, double percent);
 vector<int> choose_neighbours (int n, int k, vector<int> excluded);

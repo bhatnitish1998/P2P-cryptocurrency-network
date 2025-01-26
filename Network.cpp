@@ -1,5 +1,6 @@
 #include "Network.h"
 #include "utility_functions.h"
+#include <iostream>
 
 int Node::node_ticket = 0;
 
@@ -27,21 +28,39 @@ Network::Network(int n, double percent_fast, double percent_high_cpu)
     /* TODO 2: Randomly choose percent_fast nodes, and change their attribute fast to true.
        Randomly choose percent_high_cpu nodes and change their attribute high_cpu to true.
        Write the utility function in utility.cpp
-     */
+    */
+
+    //   Get ( n * percent_fast) fast nodes 
+    vector<int> fast_nodes = choose_percent(n, percent_fast / 100.0);
+    cerr << "Num Fast Nodes: " << fast_nodes.size() << endl;
+    for (int node_id : fast_nodes) {
+        nodes[node_id].fast = true;
+    }
+
+    //   Get ( n * percent_high_cpu) high_cpu nodes 
+    vector<int> high_cpu_nodes = choose_percent(n, percent_high_cpu / 100.0);
+    cerr << "Num High CPU Nodes: " << high_cpu_nodes.size() << endl;
+    for (int node_id : high_cpu_nodes) {
+        nodes[node_id].high_cpu = true;
+    }
 
     bool done = false;
     vector<vector<int>>al(n);
+    int trial = 0;
 
     while (!done)
     {
+        trial++;
+        cerr << "Trial: " << trial << endl;
         al.clear();
+        int min_peers = 3;
         for (int i = 0; i < n; i++)
         {
-            int min_peers = 3;
-
             while (al[i].size() < min_peers)
             {
-                vector<int> temp = choose_neighbours(n,min_peers-al[i].size(),al[i]);
+                cerr << "\rNode: " << i << " Peers: " << al[i].size() << flush;
+
+                vector<int> temp = choose_neighbours(n, min_peers - al[i].size(), al[i]);
                 for (auto neighbour : temp)
                 {
                     if (neighbour!=i && al[neighbour].size() < 6)
@@ -50,12 +69,23 @@ Network::Network(int n, double percent_fast, double percent_high_cpu)
                         al[neighbour].push_back(i);
                     }
                 }
+                
             }
         }
 
         // TODO 3: Write check_connected using dfs
         done = check_connected(al);
-
+        if (done)
+        {
+            for (int i = 0; i < n; i++){
+                cerr << "\rNode: " << i << " Peers: " << al[i].size() << " [";
+                for (int peer : al[i]) {
+                    cerr << peer << " ";
+                }
+                cerr << "]" << endl;
+            }
+        }
+        cerr << "Connectedness Check Trial " << trial << ", Result: " << done << "\n" << endl;
     }
 
     for (int i = 0; i < n; i++)
