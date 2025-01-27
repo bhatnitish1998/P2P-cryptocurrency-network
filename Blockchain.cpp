@@ -1,7 +1,3 @@
-//
-// Created by nitish on 1/26/25.
-//
-
 #include "Blockchain.h"
 
 long long Transaction::transaction_ticket = 0;
@@ -14,6 +10,8 @@ Transaction::Transaction(int receiver, double amount, bool coinbase, int sender)
     this->amount = amount;
     this->coinbase = coinbase;
     this->sender = sender;
+
+    if (coinbase && sender != -1) throw invalid_argument("sender present for coinbase transaction");
 }
 
 Block::Block()
@@ -26,4 +24,13 @@ LeafNode::LeafNode(Block* block, long length)
 {
     this->block = block;
     this->length = length;
+}
+
+ostream& operator<<(ostream& os, const Transaction& txn)
+{
+    if (txn.coinbase)
+        os << txn.id << ": " << txn.receiver << " mines " << txn.amount << " coins";
+    else
+        os << txn.id << ": " << txn.sender << " pays " << txn.receiver << " " << txn.amount << " coins";
+    return os;
 }
