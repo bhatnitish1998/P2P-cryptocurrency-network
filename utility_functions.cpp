@@ -18,6 +18,12 @@ int uniform_distribution(int min, int max)
     return distribution(generator);
 }
 
+// TODO 6: return next arrival time using exponential distribution
+double exponential_distribution(double mean)
+{
+    return 5.0;
+}
+
 vector<int> choose_percent(int n, double percent)
 {
     // return n * percent node ids

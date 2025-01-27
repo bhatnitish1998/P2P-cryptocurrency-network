@@ -1,14 +1,12 @@
-//
-// Created by nitish on 1/26/25.
-//
-
 #ifndef BLOCKCHAIN_H
 #define BLOCKCHAIN_H
 
 #include <vector>
 #include <ostream>
-using namespace std;
+#include <iostream>
+#include <bits/fs_fwd.h>
 
+using namespace std;
 
 class Transaction
 {
@@ -33,7 +31,11 @@ public:
     long long id;
     Block* parent_block;
     vector<Transaction> transactions;
-    Block();
+    double creation_time;
+
+
+    explicit Block(double creation_time);
+    friend ostream& operator<<(ostream& os, const Block& block);
 };
 
 class LeafNode

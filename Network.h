@@ -3,10 +3,12 @@
 
 #include <vector>
 #include <list>
-#include <iostream>
 #include "Blockchain.h"
 
 using namespace std;
+
+extern int propagation_delay_min;
+extern int propagation_delay_max;
 
 class Link
 {
@@ -39,12 +41,10 @@ public:
 class Network
 {
 public:
-  int n;
-  int initial_bitcoin = 50;
+  int number_of_nodes;
   vector<Node> nodes;
 
-  Network(int n, double percent_fast, double percent_high_cpu);
-  void create_genesis();
+  Network(int number_of_nodes, double percent_fast, double percent_high_cpu);
 };
 
 #endif //NETWORK_H

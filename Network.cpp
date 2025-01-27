@@ -1,6 +1,6 @@
 #include "Network.h"
 #include "utility_functions.h"
-#include <iostream>
+
 
 int Node::node_ticket = 0;
 
@@ -19,40 +19,40 @@ Node::Node()
     peers.reserve(6);
 }
 
-Network::Network(int n, double percent_fast, double percent_high_cpu)
+Network::Network(int number_of_nodes, double percent_fast, double percent_high_cpu)
 {
-    this->n = n;
+    this->number_of_nodes = number_of_nodes;
 
     // Node id equal to its index in vector
-    nodes.resize(n);
+    nodes.resize(number_of_nodes);
 
 
     //   Make ( n * percent_fast) fast nodes
-    vector<int> fast_nodes = choose_percent(n, percent_fast / 100.0);
+    vector<int> fast_nodes = choose_percent(number_of_nodes, percent_fast / 100.0);
     for (const int node_id : fast_nodes)
     {
         nodes[node_id].fast = true;
     }
 
     //   Make ( n * percent_high_cpu) high_cpu nodes
-    vector<int> high_cpu_nodes = choose_percent(n, percent_high_cpu / 100.0);
+    vector<int> high_cpu_nodes = choose_percent(number_of_nodes, percent_high_cpu / 100.0);
     for (const int node_id : high_cpu_nodes)
     {
         nodes[node_id].high_cpu = true;
     }
 
     bool done = false;
-    vector<vector<int>> al(n);
+    vector<vector<int>> al(number_of_nodes);
 
     while (!done)
     {
         al.clear();
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < number_of_nodes; i++)
         {
             constexpr int min_peers = 3;
             while (al[i].size() < min_peers)
             {
-                vector<int> temp = choose_neighbours(n, min_peers - al[i].size(), al[i]);
+                vector<int> temp = choose_neighbours(number_of_nodes, min_peers - al[i].size(), al[i]);
                 for (auto neighbour : temp)
                 {
                     if (neighbour != i && al[neighbour].size() < 6)
@@ -67,35 +67,17 @@ Network::Network(int n, double percent_fast, double percent_high_cpu)
         done = check_connected(al);
     }
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < number_of_nodes; i++)
     {
         for (auto x : al[i])
         {
             if (i < x)
             {
-                int propagation_delay = uniform_distribution(10, 500);
+                int propagation_delay = uniform_distribution(propagation_delay_min, propagation_delay_max);
                 int link_speed = nodes[i].fast && nodes[x].fast ? 100 : 5;
                 nodes[i].peers.emplace_back(x, propagation_delay, link_speed);
                 nodes[x].peers.emplace_back(i, propagation_delay, link_speed);
             }
         }
-    }
-}
-
-void Network::create_genesis()
-{
-    auto* genesis = new Block();
-    // create coinbase transaction for each node with initial bitcoin
-    for (int i = 0; i < n; i++)
-    {
-        auto temp = Transaction(i, initial_bitcoin, true);
-        genesis->transactions.push_back(temp);
-    }
-
-    // Add genesis block to all node
-    for (int i = 0; i < n; i++)
-    {
-        nodes[i].genesis = genesis;
-        nodes[i].leaves.emplace_back(genesis, 1);
     }
 }
