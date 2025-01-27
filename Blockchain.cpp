@@ -4,8 +4,8 @@
 
 #include "Blockchain.h"
 
-long long Transaction::transaction_ticket =0;
-long long Block::block_ticket =0;
+long long Transaction::transaction_ticket = 0;
+long long Block::block_ticket = 0;
 
 Transaction::Transaction(int receiver, double amount, bool coinbase, int sender)
 {
@@ -14,19 +14,7 @@ Transaction::Transaction(int receiver, double amount, bool coinbase, int sender)
     this->amount = amount;
     this->coinbase = coinbase;
     this->sender = sender;
-    
 }
-
-ostream& operator<<(ostream &os, const Transaction &txn)
-{
-     if (txn.coinbase) {
-            os << "TxnID:"<< txn.id << " mines "<<txn.amount <<" coins";
-        } else {
-            os << "TxnID:" << txn.id<< " pays " << txn.receiver <<" "<< txn.amount << " coins";
-        }
-        return os;
-}
-
 
 Block::Block()
 {
@@ -39,5 +27,3 @@ LeafNode::LeafNode(Block* block, long length)
     this->block = block;
     this->length = length;
 }
-
-

@@ -14,7 +14,7 @@ class Transaction
 {
     static long long transaction_ticket;
 
-    public:
+public:
     long long id;
     int receiver;
     double amount;
@@ -32,21 +32,21 @@ class Transaction
 class Block
 {
     static long long block_ticket;
-    public:
+
+public:
     long long id;
     Block* parent_block;
-    vector <Transaction> transactions;
+    vector<Transaction> transactions;
     Block();
 };
 
 class LeafNode
 {
-    public:
+public:
     Block* block;
     long length;
 
     LeafNode(Block* block, long length);
-
 };
 
 #endif //BLOCKCHAIN_H

@@ -1,7 +1,7 @@
 #include "utility_functions.h"
-#include <vector> 
-#include <ctime>      
-#include <algorithm>  
+#include <vector>
+#include <ctime>
+#include <algorithm>
 #include <set>
 #include <stack>
 #include <iostream>
@@ -19,15 +19,18 @@ int uniform_distribution(int min, int max)
 }
 
 vector<int> choose_percent(int n, double percent)
-{   // return n * percent node ids
-    
+{
+    // return n * percent node ids
+
     int num_to_select = static_cast<int>(n * percent);
     vector<int> selected_nodes;
     selected_nodes.reserve(num_to_select); // Reserve memory for num_to_select elements
 
-    while (selected_nodes.size() < num_to_select) {
-        int candidate = uniform_distribution(0, n-1);
-        if (find(selected_nodes.begin(), selected_nodes.end(), candidate) == selected_nodes.end()) {
+    while (selected_nodes.size() < num_to_select)
+    {
+        int candidate = uniform_distribution(0, n - 1);
+        if (find(selected_nodes.begin(), selected_nodes.end(), candidate) == selected_nodes.end())
+        {
             selected_nodes.push_back(candidate);
         }
     }
@@ -37,21 +40,23 @@ vector<int> choose_percent(int n, double percent)
 vector<int> choose_neighbours(int n, int k, vector<int> excluded)
 {
     // return k node ids as vector randomly from |Total nodes| - |excluded nodes| 
-    
-    vector<int> selected_nodes;
-    selected_nodes.reserve(k); 
 
-    while (selected_nodes.size() < k) {
+    vector<int> selected_nodes;
+    selected_nodes.reserve(k);
+
+    while (selected_nodes.size() < k)
+    {
         int candidate = uniform_distribution(0, n - 1);
         if (find(excluded.begin(), excluded.end(), candidate) == excluded.end() &&
-            find(selected_nodes.begin(), selected_nodes.end(), candidate) == selected_nodes.end()) {
+            find(selected_nodes.begin(), selected_nodes.end(), candidate) == selected_nodes.end())
+        {
             selected_nodes.push_back(candidate);
         }
     }
     return selected_nodes;
 }
 
- bool check_connected(vector<vector<int>>& al)
+bool check_connected(vector<vector<int>>& al)
 {
     // check is connected all nodes
     int n = al.size();
@@ -63,12 +68,15 @@ vector<int> choose_neighbours(int n, int k, vector<int> excluded)
     visited[0] = true;
     int visited_count = 1;
 
-    while (!s.empty()) {
+    while (!s.empty())
+    {
         int node = s.top();
         s.pop();
 
-        for (int neighbor : al[node]) {
-            if (!visited[neighbor]) {
+        for (int neighbor : al[node])
+        {
+            if (!visited[neighbor])
+            {
                 visited[neighbor] = true;
                 s.push(neighbor);
                 visited_count++;
