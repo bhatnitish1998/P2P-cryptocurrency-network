@@ -22,4 +22,10 @@ receive_transaction_object::receive_transaction_object(int sender_node_id, int r
     this->txn = txn;
 }
 
+receive_block_object::receive_block_object(int receiver_node_id, Block* blk)
+{
+    this->receiver_node_id = receiver_node_id;
+    this->blk = blk;
+}
+
 Event::Event(long long time, int type, VO obj): time(time), type(type), object(obj){}

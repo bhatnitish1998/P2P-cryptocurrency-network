@@ -59,6 +59,62 @@ void Node::receive_transaction(receive_transaction_object &obj)
     }
 }
 
+void Node::receive_block(Block* blk)
+{
+    if (block_ids_in_tree.count(blk->id) == 1)
+        return;
+
+    if (!validate_block(blk))
+        return;
+
+    add_block_to_tree(blk);
+}
+
+bool Node::validate_block(Block* blk)
+{
+    vector<long long> balance(number_of_nodes,0);
+
+    Block *temp = blk;
+    while (temp->parent_block != nullptr)
+    {
+        // TODO 7: Go through all the transactions in each block and update the balances in the above vector
+        temp = temp->parent_block;
+    }
+
+    for (auto x: blk->transactions)
+    {
+        // TODO 7: Subtract and add balances here making sure they dont ever go negative.
+    }
+
+    return true;
+}
+
+void Node::add_block_to_tree(Block* blk)
+{
+    block_ids_in_tree.insert(blk->id);
+
+    for (auto x: leaves)
+    {
+        if (x.block->id == blk->parent_block->id)
+        {
+            long long curr_length = x.length;
+            auto it = leaves.find(x);
+            leaves.erase(it);
+            leaves.insert({blk,curr_length+1});
+            return;
+        }
+    }
+
+    long long length = 1;
+    Block *temp = blk;
+    while (temp->parent_block!=nullptr)
+    {
+        temp = temp->parent_block;
+        length++;
+    }
+    leaves.insert({blk,length});
+}
+
 Network::Network()
 {
     // Node id equal to its index in vector

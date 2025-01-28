@@ -6,7 +6,7 @@
 
 void Simulator::create_genesis()
 {
-    auto* genesis = new Block(0);
+    auto* genesis = new Block(0,nullptr);
     // create coinbase transaction for each node with initial bitcoin
     for (int i = 0; i < number_of_nodes; i++)
     {
@@ -18,7 +18,9 @@ void Simulator::create_genesis()
     for (int i = 0; i < number_of_nodes; i++)
     {
         network.nodes[i].genesis = genesis;
-        network.nodes[i].leaves.emplace_back(genesis, 1);
+        network.nodes[i].leaves.insert({genesis, 1});
+        network.nodes[i].block_ids_in_tree.insert(genesis->id);
+
     }
 }
 
@@ -63,8 +65,7 @@ void Simulator::start()
 
         if (e.type == RECEIVE_TRANSACTION)
         {
-            struct receive_transaction_object obj = std::get<struct receive_transaction_object>(e.object);
-
+            receive_transaction_object obj = std::get<struct receive_transaction_object>(e.object);
             network.nodes[obj.receiver_node_id].receive_transaction(obj);
         }
     }

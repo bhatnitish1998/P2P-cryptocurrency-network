@@ -25,6 +25,13 @@ struct receive_transaction_object
     receive_transaction_object(int sender_node_id, int receiver_node_id, Transaction * txn);
 };
 
+struct receive_block_object
+{
+    int receiver_node_id;
+    Block *blk;
+    receive_block_object(int receiver_node_id, Block *blk);
+};
+
 typedef     variant <create_transaction_object, receive_transaction_object> VO;
 
 class Event

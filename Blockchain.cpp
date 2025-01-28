@@ -14,10 +14,10 @@ Transaction::Transaction(int receiver, int amount, bool coinbase, int sender)
     if (coinbase && sender != -1) throw invalid_argument("sender present for coinbase transaction");
 }
 
-Block::Block(double creation_time)
+Block::Block(long long creation_time,Block * parent_block)
 {
     id = block_ticket++;
-    parent_block = nullptr;
+    this->parent_block = parent_block;
     this->creation_time = creation_time;
 }
 
@@ -26,6 +26,19 @@ LeafNode::LeafNode(Block* block, long long length)
     this->block = block;
     this->length = length;
 }
+
+bool LeafNode::operator>(const LeafNode& other) const
+{
+    if (length == other.length) return block->id < other.block->id;
+    else return length > other.length;
+}
+
+bool LeafNode::operator<(const LeafNode& other) const
+{
+    if (length == other.length) return block->id > other.block->id;
+    else return length < other.length;
+}
+
 
 ostream& operator<<(ostream& os, const Transaction& txn)
 {

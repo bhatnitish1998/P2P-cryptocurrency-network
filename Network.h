@@ -46,13 +46,17 @@ public:
   bool high_cpu;
   vector<Link> peers;
   Block* genesis;
-  list<LeafNode> leaves;
+  set<LeafNode,greater<>> leaves;
   queue <Transaction *> mempool;
+  set<long long> block_ids_in_tree;
 
   Node();
   void create_transaction();
   void send_transaction_to_link(Transaction * txn, Link & link) const;
   void receive_transaction(receive_transaction_object & obj);
+  void receive_block(Block * blk);
+  static bool validate_block(Block * blk);
+  void add_block_to_tree(Block * blk);
 };
 
 class Network

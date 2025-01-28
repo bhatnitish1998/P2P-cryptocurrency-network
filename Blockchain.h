@@ -31,9 +31,9 @@ public:
     long long id;
     Block* parent_block;
     vector<Transaction> transactions;
-    double creation_time;
+    long long creation_time;
 
-    explicit Block(double creation_time);
+    Block(long long creation_time, Block* parent_block);
     friend ostream& operator<<(ostream& os, const Block& block);
 };
 
@@ -44,6 +44,8 @@ public:
     long long length;
 
     LeafNode(Block* block, long long length);
+    bool operator > (const LeafNode &other) const;
+    bool operator < (const LeafNode &other) const;
 };
 
 #endif //BLOCKCHAIN_H
