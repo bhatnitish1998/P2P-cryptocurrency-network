@@ -50,8 +50,9 @@ public:
   queue <Transaction *> mempool;
 
   Node();
-  void create_transaction(const Event& event);
-  void send_transaction_to_link(Transaction * txn, Link & link);
+  void create_transaction();
+  void send_transaction_to_link(Transaction * txn, Link & link) const;
+  void receive_transaction(receive_transaction_object & obj);
 };
 
 class Network

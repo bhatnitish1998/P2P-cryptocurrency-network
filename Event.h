@@ -9,7 +9,23 @@
 #include <queue>
 #include "Blockchain.h"
 
-typedef     variant <int,Transaction*,Block*> VO;
+struct create_transaction_object
+{
+    int creator_node_id;
+    explicit create_transaction_object(int creator_node_id);
+
+};
+
+struct receive_transaction_object
+{
+    int sender_node_id;
+    int receiver_node_id;
+    Transaction * txn;
+
+    receive_transaction_object(int sender_node_id, int receiver_node_id, Transaction * txn);
+};
+
+typedef     variant <create_transaction_object, receive_transaction_object> VO;
 
 class Event
 {
@@ -19,7 +35,6 @@ public:
     VO object;
 
     Event(long long time, int type, VO object);
-
     bool operator > (const Event &other) const;
 };
 

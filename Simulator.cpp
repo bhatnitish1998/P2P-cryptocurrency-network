@@ -29,11 +29,11 @@ void Simulator::create_initial_transactions()
 
     for (int i = 0; i < initial_number_of_transactions; i++)
     {
-        int creater_id = uniform_distribution(0, number_of_nodes - 1);
-
+        int creator_node_id = uniform_distribution(0, number_of_nodes - 1);
+        struct create_transaction_object obj(creator_node_id);
         // TODO 6: return next arrival time using exponential distribution
         event_time += exponential_distribution(mean_transaction_inter_arrival_time);
-        Event e = Event(event_time,CREATE_TRANSACTION, creater_id);
+        Event e = Event(event_time,CREATE_TRANSACTION, obj);
         event_queue.push(e);
     }
 }
@@ -56,8 +56,16 @@ void Simulator::start()
 
         if (e.type == CREATE_TRANSACTION)
         {
-            int creater_id = get<int> (e.object);;
-            network.nodes[creater_id].create_transaction(e);
+            struct create_transaction_object obj = std::get<struct create_transaction_object>(e.object);
+            int receiver_node_id = obj.creator_node_id;
+            network.nodes[receiver_node_id].create_transaction();
+        }
+
+        if (e.type == RECEIVE_TRANSACTION)
+        {
+            struct receive_transaction_object obj = std::get<struct receive_transaction_object>(e.object);
+
+            network.nodes[obj.receiver_node_id].receive_transaction(obj);
         }
     }
 }

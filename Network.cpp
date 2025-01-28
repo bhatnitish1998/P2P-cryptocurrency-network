@@ -20,7 +20,7 @@ Node::Node()
     genesis = nullptr;
 }
 
-void Node::create_transaction(const Event& event)
+void Node::create_transaction()
 {
     int receiver = uniform_distribution(0, number_of_nodes - 1);
     int amount = uniform_distribution(transaction_amount_min, transaction_amount_max);
@@ -33,13 +33,30 @@ void Node::create_transaction(const Event& event)
         send_transaction_to_link(t,x);
 }
 
-void Node::send_transaction_to_link(Transaction* txn, Link& link)
+void Node::send_transaction_to_link(Transaction* txn, Link& link) const
 {
     long long latency = link.propagation_delay + (1 * 1024 * 8)/link.link_speed + exponential_distribution((queuing_delay_constant)/link.link_speed);
     link.transactions_sent.insert(txn->id);
 
-    Event e(simulation_time + latency,RECEIVE_TRANSACTION,txn);
+    struct receive_transaction_object obj(id,link.peer,txn);
+
+    Event e(simulation_time + latency,RECEIVE_TRANSACTION,obj);
     event_queue.push(e);
+}
+
+void Node::receive_transaction(receive_transaction_object &obj)
+{
+    Transaction * txn = obj.txn;
+    mempool.push(txn);
+
+    for (Link &x: peers)
+    {
+        if (x.peer != obj.sender_node_id && x.transactions_sent.count(txn->id)==0)
+        {
+            send_transaction_to_link(txn,x);
+            return;
+        }
+    }
 }
 
 Network::Network()
