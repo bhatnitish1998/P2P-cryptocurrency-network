@@ -19,9 +19,9 @@ int uniform_distribution(int min, int max)
 }
 
 // TODO 6: return next arrival time using exponential distribution
-double exponential_distribution(double mean)
+int exponential_distribution(long long mean)
 {
-    return 5.0;
+    return 5;
 }
 
 vector<int> choose_percent(int n, double percent)

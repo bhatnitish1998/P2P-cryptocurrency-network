@@ -15,11 +15,11 @@ class Transaction
 public:
     long long id;
     int receiver;
-    double amount;
+    long long amount;
     bool coinbase;
     int sender;
 
-    Transaction(int receiver, double amount, bool coinbase, int sender = -1);
+    Transaction(int receiver, int amount, bool coinbase, int sender = -1);
     friend ostream& operator<<(ostream& os, const Transaction& txn);
 };
 
@@ -33,7 +33,6 @@ public:
     vector<Transaction> transactions;
     double creation_time;
 
-
     explicit Block(double creation_time);
     friend ostream& operator<<(ostream& os, const Block& block);
 };
@@ -42,9 +41,9 @@ class LeafNode
 {
 public:
     Block* block;
-    long length;
+    long long length;
 
-    LeafNode(Block* block, long length);
+    LeafNode(Block* block, long long length);
 };
 
 #endif //BLOCKCHAIN_H

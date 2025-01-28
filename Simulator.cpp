@@ -2,22 +2,11 @@
 
 #include <utility>
 
-bool Event::operator >(const Event& other) const
-{
-    if (time == other.time) return type > other.type;
-    else return time > other.time;
-}
 
-Event::Event(double time, int type, variant<int, Transaction*, Block*> object)
-{
-    this->time = time;
-    this->type = type;
-    this->object = object;
-}
 
 void Simulator::create_genesis()
 {
-    auto* genesis = new Block(0.0);
+    auto* genesis = new Block(0);
     // create coinbase transaction for each node with initial bitcoin
     for (int i = 0; i < number_of_nodes; i++)
     {
@@ -28,27 +17,15 @@ void Simulator::create_genesis()
     // Add genesis block to all node
     for (int i = 0; i < number_of_nodes; i++)
     {
-        nw.nodes[i].genesis = genesis;
-        nw.nodes[i].leaves.emplace_back(genesis, 1);
+        network.nodes[i].genesis = genesis;
+        network.nodes[i].leaves.emplace_back(genesis, 1);
     }
 }
 
-Simulator::Simulator(int number_of_nodes, double percent_fast, double percent_high_cpu,
-                     double mean_transaction_inter_arrival_time, double block_inter_arrival_time,
-                     double queuing_delay_constant): nw(number_of_nodes, percent_fast, percent_high_cpu)
-{
-    simulation_time = 0;
-    this->number_of_nodes = number_of_nodes;
-    this->percent_fast = percent_fast;
-    this->percent_high_cpu = percent_high_cpu;
-    this->mean_transaction_inter_arrival_time = mean_transaction_inter_arrival_time;
-    this->block_inter_arrival_time = block_inter_arrival_time;
-    this->queuing_delay_constant = queuing_delay_constant;
-}
 
 void Simulator::create_initial_transactions()
 {
-    double event_time = 0;
+    long long event_time = 0;
 
     for (int i = 0; i < initial_number_of_transactions; i++)
     {
@@ -68,4 +45,19 @@ void Simulator::initialize()
 
     // create initial set of transactions and put it into event queue;
     create_initial_transactions();
+}
+
+void Simulator::start()
+{
+    while (!event_queue.empty())
+    {
+        Event e = event_queue.top(); event_queue.pop();
+        simulation_time = e.time;
+
+        if (e.type == CREATE_TRANSACTION)
+        {
+            int creater_id = get<int> (e.object);;
+            network.nodes[creater_id].create_transaction(e);
+        }
+    }
 }

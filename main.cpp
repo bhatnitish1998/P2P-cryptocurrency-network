@@ -1,30 +1,48 @@
+// time : long long : milliseconds
+// data : long long : bits
+// amount : long long : bitcoin
+
 #include "Network.h"
 #include <cstdlib>
 #include "Simulator.h"
+#include "Event.h"
 
-int initial_bitcoin = 50;
-int initial_number_of_transactions = 100;
-int propagation_delay_min = 10 ; // milliseconds
-int propagation_delay_max = 500; // milliseconds
+// experiment constants
+int initial_bitcoin = 100;
+int initial_number_of_transactions = 1000;
+int propagation_delay_min = 10 ;
+int propagation_delay_max = 500;
 int transaction_amount_min = 5;
 int transaction_amount_max = 20;
+int queuing_delay_constant = 96000;
+
+// experiment parameters
+int number_of_nodes;
+int percent_fast;
+int percent_high_cpu;
+int mean_transaction_inter_arrival_time;
+int block_inter_arrival_time;
+
+// Simulation variables
+long long simulation_time =0;
+EQ event_queue;
 
 int main()
 {
     // Simulation parameters
     // TODO 1: Ensure number_of_nodes at least 6;
-    int number_of_nodes = 20;
-    double percent_fast = 25;
-    double percent_high_cpu = 40;
-    double mean_transaction_inter_arrival_time = 5; // seconds
-    double block_inter_arrival_time = 600; // seconds
-    double queuing_delay_constant = 96; // Kbits
+    number_of_nodes = 20;
+    percent_fast = 40;
+    percent_high_cpu = 25;
+    mean_transaction_inter_arrival_time = 5000;
+    block_inter_arrival_time = 600 * 1000;
     // TODO 1: take the parameters from command line arguments
 
     // variables needed for random number generation
     unsigned int global_seed = 911;
     srand(global_seed);
 
-    Simulator sim(number_of_nodes,percent_fast,percent_high_cpu,mean_transaction_inter_arrival_time,block_inter_arrival_time,queuing_delay_constant);
+    Simulator sim;
     sim.initialize();
+    sim.start();
 }

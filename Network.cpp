@@ -4,7 +4,7 @@
 
 int Node::node_ticket = 0;
 
-Link::Link(int peer, int propagation_delay, int link_speed)
+Link::Link(int peer, int propagation_delay, long long link_speed)
 {
     this->peer = peer;
     this->propagation_delay = propagation_delay;
@@ -17,15 +17,35 @@ Node::Node()
     fast = false;
     high_cpu = false;
     peers.reserve(6);
+    genesis = nullptr;
 }
 
-Network::Network(int number_of_nodes, double percent_fast, double percent_high_cpu)
+void Node::create_transaction(const Event& event)
 {
-    this->number_of_nodes = number_of_nodes;
+    int receiver = uniform_distribution(0, number_of_nodes - 1);
+    int amount = uniform_distribution(transaction_amount_min, transaction_amount_max);
 
+    auto *t = new Transaction(receiver,amount,false,id);
+    mempool.push(t);
+
+    // send to all
+    for (Link& x: peers)
+        send_transaction_to_link(t,x);
+}
+
+void Node::send_transaction_to_link(Transaction* txn, Link& link)
+{
+    long long latency = link.propagation_delay + (1 * 1024 * 8)/link.link_speed + exponential_distribution((queuing_delay_constant)/link.link_speed);
+    link.transactions_sent.insert(txn->id);
+
+    Event e(simulation_time + latency,RECEIVE_TRANSACTION,txn);
+    event_queue.push(e);
+}
+
+Network::Network()
+{
     // Node id equal to its index in vector
     nodes.resize(number_of_nodes);
-
 
     //   Make ( n * percent_fast) fast nodes
     vector<int> fast_nodes = choose_percent(number_of_nodes, percent_fast / 100.0);
@@ -74,7 +94,7 @@ Network::Network(int number_of_nodes, double percent_fast, double percent_high_c
             if (i < x)
             {
                 int propagation_delay = uniform_distribution(propagation_delay_min, propagation_delay_max);
-                int link_speed = nodes[i].fast && nodes[x].fast ? 100 : 5;
+                int link_speed = nodes[i].fast && nodes[x].fast ? 100 * 1000 : 5 * 1000; // bits per millisecond
                 nodes[i].peers.emplace_back(x, propagation_delay, link_speed);
                 nodes[x].peers.emplace_back(i, propagation_delay, link_speed);
             }

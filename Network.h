@@ -3,23 +3,36 @@
 
 #include <vector>
 #include <list>
+#include <set>
+#include <queue>
 #include "Blockchain.h"
+#include "Event.h"
 
 using namespace std;
 
+extern int number_of_nodes;
+extern int transaction_amount_min;
+extern int transaction_amount_max;
+extern int queuing_delay_constant;
+extern int percent_fast;
+extern int percent_high_cpu;
 extern int propagation_delay_min;
-extern int propagation_delay_max;
+extern int propagation_delay_max;;
+extern long long simulation_time;
+
+extern EQ event_queue;
+
 
 class Link
 {
 public:
   int peer;
-  int propagation_delay; // in milliseconds
-  int link_speed; // in Mbps
+  int propagation_delay;
+  long long link_speed;
 
-  vector<int> transactions_sent;
+  set<long long> transactions_sent;
 
-  Link(int peer, int propagation_delay, int link_speed);
+  Link(int peer, int propagation_delay, long long link_speed);
 };
 
 class Node
@@ -34,17 +47,19 @@ public:
   vector<Link> peers;
   Block* genesis;
   list<LeafNode> leaves;
+  queue <Transaction *> mempool;
 
   Node();
+  void create_transaction(const Event& event);
+  void send_transaction_to_link(Transaction * txn, Link & link);
 };
 
 class Network
 {
 public:
-  int number_of_nodes;
   vector<Node> nodes;
 
-  Network(int number_of_nodes, double percent_fast, double percent_high_cpu);
+  Network();
 };
 
 #endif //NETWORK_H

@@ -3,7 +3,7 @@
 long long Transaction::transaction_ticket = 0;
 long long Block::block_ticket = 0;
 
-Transaction::Transaction(int receiver, double amount, bool coinbase, int sender)
+Transaction::Transaction(int receiver, int amount, bool coinbase, int sender)
 {
     id = transaction_ticket++;
     this->receiver = receiver;
@@ -21,7 +21,7 @@ Block::Block(double creation_time)
     this->creation_time = creation_time;
 }
 
-LeafNode::LeafNode(Block* block, long length)
+LeafNode::LeafNode(Block* block, long long length)
 {
     this->block = block;
     this->length = length;
