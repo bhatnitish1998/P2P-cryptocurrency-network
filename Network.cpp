@@ -66,8 +66,9 @@ void Node::receive_block(Block* blk)
 
     if (!validate_block(blk))
         return;
-
-    add_block_to_tree(blk);
+    broadcast_block(blk);
+    if (add_block_to_tree(blk))
+        mine_block();
 }
 
 bool Node::validate_block(Block* blk)
@@ -89,31 +90,94 @@ bool Node::validate_block(Block* blk)
     return true;
 }
 
-void Node::add_block_to_tree(Block* blk)
+bool Node::add_block_to_tree(Block* blk)
 {
     block_ids_in_tree.insert(blk->id);
-
+    long long previous_longest = leaves.begin()->block->id;
     for (auto x: leaves)
     {
         if (x.block->id == blk->parent_block->id)
         {
             long long curr_length = x.length;
             auto it = leaves.find(x);
+            LeafNode l(blk,curr_length+1);
+            l.transaction_ids.insert(it->transaction_ids.begin(),it->transaction_ids.end());
+            for (auto t: blk->transactions)
+                l.transaction_ids.insert(t->id);
             leaves.erase(it);
-            leaves.insert({blk,curr_length+1});
-            return;
+            leaves.insert(l);
+            return previous_longest != leaves.begin()->block->id;
         }
     }
 
     long long length = 1;
     Block *temp = blk;
+    set<long long > t_ids;
     while (temp->parent_block!=nullptr)
     {
+        for (auto t: temp->transactions)
+            t_ids.insert(t->id);
         temp = temp->parent_block;
         length++;
     }
-    leaves.insert({blk,length});
+    LeafNode l(blk,length);
+    l.transaction_ids= t_ids;
+    leaves.insert(l);
+
+    return previous_longest != leaves.begin()->block->id;
 }
+
+void Node::mine_block()
+{
+    auto it = leaves.begin();
+    Block *longest = it->block;
+    auto * blk = new Block(simulation_time,longest);
+    auto * txn = new Transaction(id,50,true);
+    blk->transactions.push_back(txn);
+
+    while (blk->transactions.size()< 1000 && !mempool.empty())
+    {
+        Transaction *t = mempool.front(); mempool.pop();
+        if (it->transaction_ids.count(t->id) == 0)
+            blk->transactions.push_back(t);
+    }
+
+    double hashing_fraction = (high_cpu? 10.0 : 1.0)/total_hashing_power;
+    long long mining_time = exponential_distribution(block_inter_arrival_time/hashing_fraction);
+
+
+    block_mined_object obj(id,blk);
+    event_queue.emplace(simulation_time + mining_time,BLOCK_MINED, obj);
+}
+
+void Node::complete_mining(Block *blk)
+{
+    Block *longest = leaves.begin()->block;
+    if (blk->parent_block->id == longest->id)
+    {
+        add_block_to_tree(blk);
+        broadcast_block(blk);
+        mine_block();
+    }
+}
+
+void Node::broadcast_block(Block* blk)
+{
+    long long size = 1 * 1024 * 8 * blk->transactions.size();
+
+    for (auto link : peers)
+    {
+        if (link.blocks_sent.count(blk->id) == 0)
+        {
+            link.blocks_sent.insert(blk->id);
+            long long latency = link.propagation_delay + size/link.link_speed + exponential_distribution((double)(queuing_delay_constant)/link.link_speed);
+            receive_block_object obj(link.peer,blk);
+            Event e(simulation_time + latency,RECEIVE_BLOCK,obj);
+            event_queue.push(e);
+        }
+    }
+}
+
 
 Network::Network()
 {
@@ -129,6 +193,7 @@ Network::Network()
 
     //   Make ( n * percent_high_cpu) high_cpu nodes
     vector<int> high_cpu_nodes = choose_percent(number_of_nodes, percent_high_cpu / 100.0);
+    total_hashing_power += high_cpu_nodes.size() * 10 + (number_of_nodes- high_cpu_nodes.size());
     for (const int node_id : high_cpu_nodes)
     {
         nodes[node_id].high_cpu = true;

@@ -26,6 +26,7 @@ int block_inter_arrival_time;
 // Simulation variables
 long long simulation_time =0;
 EQ event_queue;
+long long total_hashing_power=0;
 
 int main()
 {

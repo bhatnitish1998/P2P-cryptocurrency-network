@@ -1,9 +1,10 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#define CREATE_TRANSACTION 0 // variable contains creater node id;
-#define RECEIVE_TRANSACTION 1 // variable contains transaction pointer;
-
+#define CREATE_TRANSACTION 0
+#define RECEIVE_TRANSACTION 1
+#define RECEIVE_BLOCK 2
+#define BLOCK_MINED 3
 
 #include <variant>
 #include <queue>
@@ -32,7 +33,14 @@ struct receive_block_object
     receive_block_object(int receiver_node_id, Block *blk);
 };
 
-typedef     variant <create_transaction_object, receive_transaction_object> VO;
+struct block_mined_object
+{
+    int miner_node_id;
+    Block * blk;
+    explicit block_mined_object(int miner_node_id,Block *blk);
+};
+
+typedef     variant <create_transaction_object, receive_transaction_object,receive_block_object,block_mined_object> VO;
 
 class Event
 {

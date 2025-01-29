@@ -5,6 +5,7 @@
 #include <ostream>
 #include <iostream>
 #include <bits/fs_fwd.h>
+#include <set>
 
 using namespace std;
 
@@ -30,7 +31,7 @@ class Block
 public:
     long long id;
     Block* parent_block;
-    vector<Transaction> transactions;
+    vector<Transaction *> transactions;
     long long creation_time;
 
     Block(long long creation_time, Block* parent_block);
@@ -42,6 +43,7 @@ class LeafNode
 public:
     Block* block;
     long long length;
+    set<long long> transaction_ids;
 
     LeafNode(Block* block, long long length);
     bool operator > (const LeafNode &other) const;

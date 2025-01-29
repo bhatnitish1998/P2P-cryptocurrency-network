@@ -1,7 +1,3 @@
-//
-// Created by nitish on 1/28/25.
-//
-
 #include "Event.h"
 
 bool Event::operator >(const Event& other) const
@@ -25,6 +21,12 @@ receive_transaction_object::receive_transaction_object(int sender_node_id, int r
 receive_block_object::receive_block_object(int receiver_node_id, Block* blk)
 {
     this->receiver_node_id = receiver_node_id;
+    this->blk = blk;
+}
+
+block_mined_object::block_mined_object(int miner_node_id, Block* blk)
+{
+    this->miner_node_id = miner_node_id;
     this->blk = blk;
 }
 

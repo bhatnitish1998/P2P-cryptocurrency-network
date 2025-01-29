@@ -52,7 +52,7 @@ ostream& operator<<(ostream& os, const Transaction& txn)
 ostream& operator<<(ostream& os, const Block& block)
 {
     os << "Block id: " << block.id << " Txns: " << block.transactions.size() << endl;
-    for (Transaction txn : block.transactions)
-        os << txn << endl;
+    for (Transaction *txn : block.transactions)
+        os << *txn << endl;
     return os;
 }

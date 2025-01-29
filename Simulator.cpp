@@ -10,7 +10,7 @@ void Simulator::create_genesis()
     // create coinbase transaction for each node with initial bitcoin
     for (int i = 0; i < number_of_nodes; i++)
     {
-        auto temp = Transaction(i, initial_bitcoin, true);
+        auto *temp = new Transaction(i, initial_bitcoin, true);
         genesis->transactions.push_back(temp);
     }
 
@@ -20,6 +20,13 @@ void Simulator::create_genesis()
         network.nodes[i].genesis = genesis;
         network.nodes[i].leaves.insert({genesis, 1});
         network.nodes[i].block_ids_in_tree.insert(genesis->id);
+
+        auto it = network.nodes[i].leaves.begin();
+        LeafNode temp = *it;
+        for (auto x: genesis->transactions)
+            temp.transaction_ids.insert(x->id);
+        network.nodes[i].leaves.erase(it);
+        network.nodes[i].leaves.insert(temp);
 
     }
 }
@@ -67,6 +74,17 @@ void Simulator::start()
         {
             receive_transaction_object obj = std::get<struct receive_transaction_object>(e.object);
             network.nodes[obj.receiver_node_id].receive_transaction(obj);
+        }
+        if (e.type == RECEIVE_BLOCK)
+        {
+            receive_block_object obj = std::get<struct receive_block_object>(e.object);
+            network.nodes[obj.receiver_node_id].receive_block(obj.blk);
+        }
+
+        if (e.type == BLOCK_MINED)
+        {
+            block_mined_object obj = std::get<struct block_mined_object>(e.object);
+            network.nodes[obj.miner_node_id].complete_mining(obj.blk);
         }
     }
 }

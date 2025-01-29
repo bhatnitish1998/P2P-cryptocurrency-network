@@ -19,7 +19,7 @@ int uniform_distribution(int min, int max)
 }
 
 // TODO 6: return next arrival time using exponential distribution
-int exponential_distribution(long long mean)
+int exponential_distribution(double mean)
 {
     return 5;
 }

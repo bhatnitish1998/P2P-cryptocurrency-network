@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <list>
+#include <map>
+#include <memory>
 #include <set>
 #include <queue>
 #include "Blockchain.h"
@@ -19,6 +21,8 @@ extern int percent_high_cpu;
 extern int propagation_delay_min;
 extern int propagation_delay_max;;
 extern long long simulation_time;
+extern long long total_hashing_power;
+extern int block_inter_arrival_time;
 
 extern EQ event_queue;
 
@@ -31,6 +35,7 @@ public:
   long long link_speed;
 
   set<long long> transactions_sent;
+  set<long long> blocks_sent;
 
   Link(int peer, int propagation_delay, long long link_speed);
 };
@@ -56,7 +61,11 @@ public:
   void receive_transaction(receive_transaction_object & obj);
   void receive_block(Block * blk);
   static bool validate_block(Block * blk);
-  void add_block_to_tree(Block * blk);
+  bool add_block_to_tree(Block * blk);
+  void mine_block();
+  void complete_mining(Block *blk);
+  void broadcast_block(Block * blk);
+
 };
 
 class Network
