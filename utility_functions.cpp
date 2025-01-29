@@ -21,7 +21,9 @@ int uniform_distribution(int min, int max)
 // TODO 6: return next arrival time using exponential distribution
 int exponential_distribution(double mean)
 {
-    return 5;
+    static std::mt19937 generator(global_seed); // Mersenne Twister generator
+    std::exponential_distribution<double> distribution(1.0 / mean);
+    return static_cast<int>(distribution(generator));
 }
 
 vector<int> choose_percent(int n, double percent)
