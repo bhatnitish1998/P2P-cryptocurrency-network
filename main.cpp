@@ -3,14 +3,14 @@
 // amount : long long : bitcoin
 
 #include "Network.h"
-#include <cstdlib>
 #include "Simulator.h"
 #include "Event.h"
+#include <cstdlib>
 
 // experiment constants
 int initial_bitcoin = 100;
 int initial_number_of_transactions = 1000;
-int propagation_delay_min = 10 ;
+int propagation_delay_min = 10;
 int propagation_delay_max = 500;
 int transaction_amount_min = 5;
 int transaction_amount_max = 20;
@@ -24,25 +24,56 @@ int mean_transaction_inter_arrival_time;
 int block_inter_arrival_time;
 
 // Simulation variables
-long long simulation_time =0;
+long long simulation_time = 0;
+long long total_hashing_power = 0;
 EQ event_queue;
-long long total_hashing_power=0;
+unsigned int global_seed = 911;
 
-int main()
+
+int main(int argc, char* argv[])
 {
-    // Simulation parameters
-    // TODO 1: Ensure number_of_nodes at least 6;
-    number_of_nodes = 20;
-    percent_fast = 40;
-    percent_high_cpu = 25;
-    mean_transaction_inter_arrival_time = 5000;
-    block_inter_arrival_time = 600 * 1000;
-    // TODO 1: take the parameters from command line arguments
+    if (argc != 6)
+    {
+        cerr << "Usage: " << argv[0] <<
+            " <number_of_nodes> <percent_fast> <percent_high_cpu> <mean_transaction_inter_arrival_time> <block_inter_arrival_time>"
+            << endl;
+        cerr << "  mean_transaction_inter_arrival_time: milli-seconds" << endl;
+        cerr << "  block_inter_arrival_time: seconds" << endl;
+        return 1;
+    }
 
-    // variables needed for random number generation
-    unsigned int global_seed = 911;
+    number_of_nodes = stoi(argv[1]);
+    percent_fast = stoi(argv[2]);
+    percent_high_cpu = stoi(argv[3]);
+    mean_transaction_inter_arrival_time = stoi(argv[4]);
+    block_inter_arrival_time = stoi(argv[5]) * 1000;
+
+    if (number_of_nodes < 1 || percent_fast < 0 || percent_fast > 100 || percent_high_cpu < 0 || percent_high_cpu > 100
+        || mean_transaction_inter_arrival_time <= 0 || block_inter_arrival_time <= 0)
+    {
+        cerr << "Invalid argument values" << endl;
+        return 1;
+    }
+
+    // Print experiment configuration
+    cout << "----------------------------------------------------------------------" << endl;
+    cout << "Simulation Configuration:" << endl;
+    cout << "  Number of Nodes: " << number_of_nodes << endl;
+    cout << "  Percent Fast: " << percent_fast << "%" << endl;
+    cout << "  Percent High CPU: " << percent_high_cpu << "%" << endl;
+    cout << "  Mean Transaction Inter-Arrival Time: " << mean_transaction_inter_arrival_time << " ms" << endl;
+    cout << "  Block Inter-Arrival Time: " << block_inter_arrival_time << " ms" << endl;
+    cout << "  Propagation Delay (Min-Max): " << propagation_delay_min << " - " << propagation_delay_max << " ms" <<
+        endl;
+    cout << "  Queuing Delay Constant: " << queuing_delay_constant << " bits/sec" << endl;
+    cout << "  Initial Bitcoins with each node: " << initial_bitcoin << endl;
+    cout << "  Initial Number of Transactions: " << initial_number_of_transactions << endl;
+    cout << "  Transaction Amount (Min-Max): " << transaction_amount_min << " - " << transaction_amount_max <<
+        " bitcoins" << endl;
+    cout << "----------------------------------------------------------------------" << endl;
     srand(global_seed);
 
+    // Create and start simulation
     Simulator sim;
     sim.initialize();
     sim.start();
