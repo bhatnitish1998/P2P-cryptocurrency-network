@@ -1,6 +1,6 @@
-// time : long long : milliseconds
-// data : long long : bits
-// amount : long long : bitcoin
+// time : milliseconds
+// data : bits
+// amount : bitcoin
 
 #include "Network.h"
 #include "Simulator.h"
@@ -77,4 +77,6 @@ int main(int argc, char* argv[])
     Simulator sim;
     sim.initialize();
     sim.start();
+
+    return 0;
 }

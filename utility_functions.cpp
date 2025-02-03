@@ -2,23 +2,18 @@
 #include <vector>
 #include <ctime>
 #include <algorithm>
-#include <set>
 #include <stack>
-#include <iostream>
 #include <random>
 
-unsigned int global_seed;
-
-int uniform_distribution(int min, int max)
+// return random number from uniform distribution
+int uniform_distribution(const int min, const int max)
 {
-    // return random number between min and max
-    // return min + rand() % (max - min + 1);
     static std::mt19937 generator(global_seed); // Mersenne Twister generator
     std::uniform_int_distribution<int> distribution(min, max);
     return distribution(generator);
 }
 
-// TODO 6: return next arrival time using exponential distribution
+// returns discrete event timings from exponential distribution
 int exponential_distribution(double mean)
 {
     static std::mt19937 generator(global_seed); // Mersenne Twister generator
@@ -26,61 +21,58 @@ int exponential_distribution(double mean)
     return static_cast<int>(distribution(generator));
 }
 
-vector<int> choose_percent(int n, double percent)
+// returns percentage of nodes from given 0 to n-1 nodes
+vector<int> choose_percent(const int n, const double percent)
 {
-    // return n * percent node ids
-
-    int num_to_select = static_cast<int>(n * percent);
+    const int num_to_select = static_cast<int>(n * percent);
     vector<int> selected_nodes;
-    selected_nodes.reserve(num_to_select); // Reserve memory for num_to_select elements
+    selected_nodes.reserve(num_to_select);
 
+    // incrementally choose nodes without repetition from uniform distribution
     while (selected_nodes.size() < num_to_select)
     {
         int candidate = uniform_distribution(0, n - 1);
         if (find(selected_nodes.begin(), selected_nodes.end(), candidate) == selected_nodes.end())
-        {
             selected_nodes.push_back(candidate);
-        }
     }
     return selected_nodes;
 }
 
+// return k node ids as vector randomly from |total nodes| - |excluded nodes|
 vector<int> choose_neighbours(int n, int k, vector<int> excluded)
 {
-    // return k node ids as vector randomly from |Total nodes| - |excluded nodes| 
-
     vector<int> selected_nodes;
     selected_nodes.reserve(k);
 
+    // incrementally choose nodes without repetition from uniform distribution
     while (selected_nodes.size() < k)
     {
         int candidate = uniform_distribution(0, n - 1);
         if (find(excluded.begin(), excluded.end(), candidate) == excluded.end() &&
             find(selected_nodes.begin(), selected_nodes.end(), candidate) == selected_nodes.end())
-        {
             selected_nodes.push_back(candidate);
-        }
     }
     return selected_nodes;
 }
 
+// checks if the given graph is connected using dfs
 bool check_connected(vector<vector<int>>& al)
 {
-    // check is connected all nodes
     int n = al.size();
     if (n == 0) return true;
 
+    // initialize data structures
     vector<bool> visited(n, false);
     stack<int> s;
     s.push(0);
     visited[0] = true;
     int visited_count = 1;
 
+    // dfs to determine all reachable nodes
     while (!s.empty())
     {
-        int node = s.top();
+        const int node = s.top();
         s.pop();
-
         for (int neighbor : al[node])
         {
             if (!visited[neighbor])
@@ -91,5 +83,6 @@ bool check_connected(vector<vector<int>>& al)
             }
         }
     }
+    // check if all nodes reachable
     return visited_count == n;
 }
