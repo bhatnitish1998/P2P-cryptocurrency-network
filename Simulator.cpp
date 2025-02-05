@@ -1,48 +1,46 @@
 #include "Simulator.h"
 
-#include <utility>
-
-
 
 void Simulator::create_genesis()
 {
-    auto* genesis = new Block(0,nullptr);
+    auto genesis = make_shared<Block>(0, nullptr);
     // create coinbase transaction for each node with initial bitcoin
     for (int i = 0; i < number_of_nodes; i++)
     {
-        auto *temp = new Transaction(i, initial_bitcoin, true);
+        auto temp = make_shared<Transaction>(i, initial_bitcoin, true);
         genesis->transactions.push_back(temp);
     }
 
-    // Add genesis block to all node
+    // add genesis block to all nodes
     for (int i = 0; i < number_of_nodes; i++)
     {
         network.nodes[i].genesis = genesis;
-        network.nodes[i].leaves.insert({genesis, 1});
-        network.nodes[i].block_ids_in_tree.insert(genesis->id);
+        network.nodes[i].block_ids_in_tree.insert({genesis->id, simulation_time});
 
-        auto it = network.nodes[i].leaves.begin();
-        LeafNode temp = *it;
-        for (auto x: genesis->transactions)
-            temp.transaction_ids.insert(x->id);
-        network.nodes[i].leaves.erase(it);
+        // update leaves in each node with initial balance, transaction ids.
+        auto temp = make_shared<LeafNode>(genesis, 1);
+        temp->balance[i] = initial_bitcoin;
+        for (const auto& x : genesis->transactions)
+            temp->transaction_ids.insert(x->id);
+
         network.nodes[i].leaves.insert(temp);
-
     }
 }
 
-
+// Populate the event queue with initial transactions
 void Simulator::create_initial_transactions()
 {
-    long long event_time = 0;
+    long long event_time = 0; // variable to keep track of future time
 
     for (int i = 0; i < initial_number_of_transactions; i++)
     {
-        int creator_node_id = uniform_distribution(0, number_of_nodes - 1);
-        struct create_transaction_object obj(creator_node_id);
-        // TODO 6: return next arrival time using exponential distribution
+        // randomly choose node who creates transaction
+        const int creator_node_id = uniform_distribution(0, number_of_nodes - 1);
+
+        // create transaction object and put into  event_queue
+        create_transaction_object obj(creator_node_id);
         event_time += exponential_distribution(mean_transaction_inter_arrival_time);
-        Event e = Event(event_time,CREATE_TRANSACTION, obj);
+        auto e = Event(event_time,CREATE_TRANSACTION, obj);
         event_queue.push(e);
     }
 }
@@ -58,32 +56,34 @@ void Simulator::initialize()
 
 void Simulator::start()
 {
+    // Process each type of event in event queue
     while (!event_queue.empty())
     {
-        Event e = event_queue.top(); event_queue.pop();
+        // get the event and update the simulation clock
+        Event e = event_queue.top();
+        event_queue.pop();
         simulation_time = e.time;
 
         if (e.type == CREATE_TRANSACTION)
         {
-            struct create_transaction_object obj = std::get<struct create_transaction_object>(e.object);
-            int receiver_node_id = obj.creator_node_id;
-            network.nodes[receiver_node_id].create_transaction();
+            const auto obj = std::get<struct create_transaction_object>(e.object);
+            network.nodes[obj.creator_node_id].create_transaction();
         }
 
         if (e.type == RECEIVE_TRANSACTION)
         {
-            receive_transaction_object obj = std::get<struct receive_transaction_object>(e.object);
+            auto obj = std::get<struct receive_transaction_object>(e.object);
             network.nodes[obj.receiver_node_id].receive_transaction(obj);
         }
         if (e.type == RECEIVE_BLOCK)
         {
-            receive_block_object obj = std::get<struct receive_block_object>(e.object);
-            network.nodes[obj.receiver_node_id].receive_block(obj.blk);
+            const auto obj = std::get<struct receive_block_object>(e.object);
+            network.nodes[obj.receiver_node_id].receive_block(obj);
         }
 
         if (e.type == BLOCK_MINED)
         {
-            block_mined_object obj = std::get<struct block_mined_object>(e.object);
+            const auto obj = std::get<struct block_mined_object>(e.object);
             network.nodes[obj.miner_node_id].complete_mining(obj.blk);
         }
     }

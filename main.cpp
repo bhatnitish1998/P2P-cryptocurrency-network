@@ -15,6 +15,8 @@ int propagation_delay_max = 500;
 int transaction_amount_min = 5;
 int transaction_amount_max = 20;
 int queuing_delay_constant = 96000;
+int transaction_size = 1024 * 8;
+int mining_reward = 50;
 
 // experiment parameters
 int number_of_nodes;

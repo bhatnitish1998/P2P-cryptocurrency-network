@@ -3,14 +3,16 @@
 
 #include <vector>
 #include <ostream>
-#include <iostream>
-#include <bits/fs_fwd.h>
 #include <set>
+#include <memory>
 
 using namespace std;
 
+extern int number_of_nodes;
+
 class Transaction
 {
+    // increasing variable to generate unique transaction ids
     static long long transaction_ticket;
 
 public:
@@ -26,28 +28,35 @@ public:
 
 class Block
 {
+    // increasing variable to generate unique block ids
     static long long block_ticket;
 
 public:
     long long id;
-    Block* parent_block;
-    vector<Transaction *> transactions;
+    shared_ptr<Block> parent_block;
+    vector<shared_ptr<Transaction>> transactions;
     long long creation_time;
 
-    Block(long long creation_time, Block* parent_block);
+    Block(long long creation_time, shared_ptr<Block> parent_block);
     friend ostream& operator<<(ostream& os, const Block& block);
 };
 
+// Leaf node of Block chain tree
 class LeafNode
 {
 public:
-    Block* block;
-    long long length;
-    set<long long> transaction_ids;
+    shared_ptr<Block> block; // last block in that chain
+    long long length; // used to determine longest chain
+    set<long long> transaction_ids; // to verify if transaction already present in chain
+    vector<long long> balance; // balance of each peer in that chain for easy validation of transactions
 
-    LeafNode(Block* block, long long length);
-    bool operator > (const LeafNode &other) const;
-    bool operator < (const LeafNode &other) const;
+    LeafNode(shared_ptr<Block> block, long long length);
+
+};
+
+// comparator to sort  LeafNode pointers by length of leaf node
+struct CompareLeafNodePtr {
+    bool operator()(const std::shared_ptr<LeafNode>& a, const std::shared_ptr<LeafNode>& b) const;
 };
 
 #endif //BLOCKCHAIN_H

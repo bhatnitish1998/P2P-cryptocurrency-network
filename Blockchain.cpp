@@ -1,9 +1,11 @@
 #include "Blockchain.h"
 
+#include <utility>
+
 long long Transaction::transaction_ticket = 0;
 long long Block::block_ticket = 0;
 
-Transaction::Transaction(int receiver, int amount, bool coinbase, int sender)
+Transaction::Transaction(const int receiver, const int amount, const bool coinbase, const int sender)
 {
     id = transaction_ticket++;
     this->receiver = receiver;
@@ -14,31 +16,25 @@ Transaction::Transaction(int receiver, int amount, bool coinbase, int sender)
     if (coinbase && sender != -1) throw invalid_argument("sender present for coinbase transaction");
 }
 
-Block::Block(long long creation_time,Block * parent_block)
+Block::Block(const long long creation_time,  shared_ptr<Block> parent_block)
 {
     id = block_ticket++;
-    this->parent_block = parent_block;
+    this->parent_block = std::move(parent_block);
     this->creation_time = creation_time;
 }
 
-LeafNode::LeafNode(Block* block, long long length)
+LeafNode::LeafNode( shared_ptr<Block> block, const long long length)
 {
-    this->block = block;
+    this->block = std::move(block);
     this->length = length;
+    this->balance.resize(number_of_nodes, 0);
 }
 
-bool LeafNode::operator>(const LeafNode& other) const
+bool CompareLeafNodePtr::operator()(const std::shared_ptr<LeafNode>& a, const std::shared_ptr<LeafNode>& b) const
 {
-    if (length == other.length) return block->id < other.block->id;
-    else return length > other.length;
+    if (a->length == b->length) return a->block->id < b->block->id;
+    else return a->length > b->length;
 }
-
-bool LeafNode::operator<(const LeafNode& other) const
-{
-    if (length == other.length) return block->id > other.block->id;
-    else return length < other.length;
-}
-
 
 ostream& operator<<(ostream& os, const Transaction& txn)
 {
@@ -52,7 +48,7 @@ ostream& operator<<(ostream& os, const Transaction& txn)
 ostream& operator<<(ostream& os, const Block& block)
 {
     os << "Block id: " << block.id << " Txns: " << block.transactions.size() << endl;
-    for (Transaction *txn : block.transactions)
+    for (const shared_ptr<Transaction>& txn : block.transactions)
         os << *txn << endl;
     return os;
 }
