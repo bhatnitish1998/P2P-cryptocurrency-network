@@ -8,13 +8,13 @@
 #include <cstdlib>
 
 // experiment constants
-int initial_bitcoin = 100;
-int initial_number_of_transactions = 10;
+int initial_bitcoin = 1000;
+int initial_number_of_transactions = 100;
 int propagation_delay_min = 10;
 int propagation_delay_max = 500;
 int transaction_amount_min = 5;
 int transaction_amount_max = 20;
-int queuing_delay_constant = 96000;
+int queuing_delay_constant = 96;  // 96000 per second
 int transaction_size = 1024 * 8;
 int mining_reward = 50;
 

@@ -1,6 +1,7 @@
 #include "Network.h"
 
 #include <algorithm>
+#include <iostream>
 
 #include "utility_functions.h"
 
@@ -21,6 +22,8 @@ Node::Node()
     peers.reserve(6);
     genesis = nullptr;
     currently_mining = false;
+    transactions_received = 0;
+    blocks_received = 0;
 }
 
 void Node::create_transaction()
@@ -32,6 +35,7 @@ void Node::create_transaction()
     const auto t = make_shared<Transaction>(receiver,amount,false,id);
     mempool.push(t);
 
+    cout<<"Time "<< simulation_time << ": Node "<<id<<" created Transaction " << *t <<endl;
     // send to all peers
     for (Link& x: peers)
         send_transaction_to_link(t,x);
@@ -55,6 +59,8 @@ void Node::send_transaction_to_link(const shared_ptr<Transaction>& txn, Link& li
 
 void Node::receive_transaction(const receive_transaction_object& obj)
 {
+    cout << "Time "<< simulation_time <<": Node " << id << " received transaction "<<obj.txn->id<<endl;
+    transactions_received++;
     // add transaction to the mempool
     mempool.push(obj.txn);
 
@@ -78,9 +84,13 @@ void Node::receive_block(const receive_block_object& obj)
     if (block_ids_in_tree.count(obj.blk->id) == 1)
         return;
 
+    blocks_received++;
+    cout<< "Time "<< simulation_time <<": Node " << id << " received block "<<obj.blk->id<<endl;
+
     // if block received before parent
     if (block_ids_in_tree.count(obj.blk->parent_block->id) == 0)
     {
+        cout <<"Time "<< simulation_time << ": Node " << id << " NACK block  "<<obj.blk->id<<endl;
         // simulate resending the block by the peer (assume ACK, NACK mechanism)
         for (const auto& link: peers)
         {
@@ -97,7 +107,10 @@ void Node::receive_block(const receive_block_object& obj)
     }
     // if validated and added to the longest chain, re-start mining on longest chain
     if (validate_and_add_block(obj.blk))
+    {
+        cout << "Time "<< simulation_time <<": Node " << id << " block  "<<obj.blk->id<< " extended longest chain" << endl;
         mine_block();
+    }
 }
 
 bool Node::validate_and_add_block(shared_ptr<Block> blk)
@@ -152,7 +165,10 @@ bool Node::validate_and_add_block(shared_ptr<Block> blk)
             temp_balance[txn->sender]-= txn->amount;
             // if balance -ve invalid transaction, abort
             if ( temp_balance[txn->sender] < 0 )
+            {
+                cout << "Time "<< simulation_time <<": Node " << id << " validation fail lock  "<<blk->id<<endl;
                 return false;
+            }
             temp_balance[txn->receiver]+= txn->amount;
         }
     }
@@ -160,6 +176,8 @@ bool Node::validate_and_add_block(shared_ptr<Block> blk)
     // if validated broadcast block and insert into tree.
     broadcast_block(blk);
     block_ids_in_tree.insert({blk->id,simulation_time});
+
+    cout << "Time "<< simulation_time <<": Node " << id << " successfully validated lock  "<<blk->id<<endl;
 
     // Update the leaf nodes
     const auto temp_leaf = make_shared<LeafNode>(blk,temp_length);
@@ -172,6 +190,7 @@ bool Node::validate_and_add_block(shared_ptr<Block> blk)
         leaves.erase(it);
     leaves.insert(temp_leaf);
     const long long current_longest = (*leaves.begin())->block->id;
+
     return (previous_longest != current_longest);
 }
 
@@ -190,6 +209,7 @@ void Node::mine_block()
     vector<long long > temp_balance = longest_leaf->balance;
 
     // populate block with valid transactions from mempool
+    blk->transactions.reserve(min(static_cast<int>(mempool.size()),1000));
     while (blk->transactions.size()< 1000 && !mempool.empty())
     {
         auto txn = mempool.front(); mempool.pop();
@@ -205,8 +225,10 @@ void Node::mine_block()
                 temp_balance[txn->receiver]+= txn->amount;
             }
         }
+        blk->transactions.push_back(txn);
     }
 
+    cout << "Time " << simulation_time << ": Node " << id << " started mining "<<blk->id<<endl;
     // compute mining time and create event at that time
     const double hashing_fraction = (high_cpu? 10.0 : 1.0)/static_cast<double>(total_hashing_power);
     const long long mining_time = exponential_distribution(block_inter_arrival_time/hashing_fraction);
@@ -223,6 +245,7 @@ void Node::complete_mining(const shared_ptr<Block>&  blk)
     {
         // validation always succeeds
         validate_and_add_block(blk);
+        cout << "Time " << simulation_time << ": Node " << id << " successfully mined "<<blk->id<<endl;
         // start mining next block
         mine_block();
     }
@@ -230,6 +253,7 @@ void Node::complete_mining(const shared_ptr<Block>&  blk)
     // if failed return transactions to the mempool
     else
     {
+        cout << "Time " << simulation_time << ": Node " << id << " mining event ignored "<<blk->id<<endl;
         for (const auto& txn: blk->transactions)
             mempool.push(txn);
     }
@@ -282,6 +306,8 @@ Network::Network()
     while (!done)
     {
         al.clear();
+        al.resize(number_of_nodes);
+
         for (int i = 0; i < number_of_nodes; i++)
         {
             int min_peers = min(3,number_of_nodes-1);

@@ -61,6 +61,9 @@ public:
   queue<shared_ptr<Transaction>> mempool;
   map<long long, long long> block_ids_in_tree; // stores received blocks <block id, time first seen>
 
+  long long transactions_received;
+  long long blocks_received;
+
   Node();
 
   // creates a random transaction and broadcasts it to its peers

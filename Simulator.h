@@ -3,9 +3,13 @@
 
 #include <iostream>
 #include "Network.h"
+#include <fstream>
 #include "utility_functions.h"
+#include <filesystem>
 
 using namespace std;
+
+namespace fs = filesystem;
 
 extern int initial_bitcoin;
 extern int initial_number_of_transactions;
@@ -28,5 +32,20 @@ public:
     void initialize();
     // Start processing event queue
     void start();
+    // write stats of each node to file
+    void write_node_stats_to_file();
+};
+
+struct block_stats
+{
+    long long block_id;
+    long long parent_block_id;
+    long long first_seen_time;
+    long long num_transactions;
+    bool part_of_longest;
+    bool generated_by_node;
+
+    block_stats();
+    bool operator <(const block_stats & other) const;
 };
 #endif //SIMULATOR_H
