@@ -9,7 +9,7 @@
 
 // experiment constants
 int initial_bitcoin = 100;
-int initial_number_of_transactions = 1000;
+int initial_number_of_transactions = 10;
 int propagation_delay_min = 10;
 int propagation_delay_max = 500;
 int transaction_amount_min = 5;
@@ -68,6 +68,8 @@ int main(int argc, char* argv[])
     cout << "  Propagation Delay (Min-Max): " << propagation_delay_min << " - " << propagation_delay_max << " ms" <<
         endl;
     cout << "  Queuing Delay Constant: " << queuing_delay_constant << " bits/sec" << endl;
+    cout << "  Transaction Size: " << transaction_size << " bits" << endl;
+    cout << "  Mining reward: " << mining_reward << " bitcoins" << endl;
     cout << "  Initial Bitcoins with each node: " << initial_bitcoin << endl;
     cout << "  Initial Number of Transactions: " << initial_number_of_transactions << endl;
     cout << "  Transaction Amount (Min-Max): " << transaction_amount_min << " - " << transaction_amount_max <<

@@ -20,6 +20,7 @@ Node::Node()
     high_cpu = false;
     peers.reserve(6);
     genesis = nullptr;
+    currently_mining = false;
 }
 
 void Node::create_transaction()
@@ -36,7 +37,7 @@ void Node::create_transaction()
         send_transaction_to_link(t,x);
 
     // if it was first transaction in mempool start mining
-    if (mempool.size() == 1) mine_block();
+    if (mempool.size() == 1 && !currently_mining) mine_block();
 }
 
 
@@ -68,7 +69,7 @@ void Node::receive_transaction(const receive_transaction_object& obj)
     }
 
     // if it was first transaction in mempool start mining
-    if (mempool.size() == 1) mine_block();
+    if (mempool.size() == 1 && !currently_mining) mine_block();
 }
 
 void Node::receive_block(const receive_block_object& obj)
@@ -102,7 +103,6 @@ void Node::receive_block(const receive_block_object& obj)
 bool Node::validate_and_add_block(shared_ptr<Block> blk)
 {
     // check if the parent node of the block is leaf node
-
     const auto it = find_if(leaves.begin(),leaves.end(),\
         [&blk](const shared_ptr<LeafNode>& leaf){return blk->parent_block->id == leaf->block->id;});
     vector<long long > temp_balance;
@@ -168,7 +168,8 @@ bool Node::validate_and_add_block(shared_ptr<Block> blk)
 
     // return true if longest changes after inserting
     const long long previous_longest = (*leaves.begin())->block->id;
-    leaves.erase(it);
+    if (it != leaves.end())
+        leaves.erase(it);
     leaves.insert(temp_leaf);
     const long long current_longest = (*leaves.begin())->block->id;
     return (previous_longest != current_longest);
@@ -177,6 +178,11 @@ bool Node::validate_and_add_block(shared_ptr<Block> blk)
 
 void Node::mine_block()
 {
+    if (mempool.empty())
+    {
+        currently_mining = false;
+        return;
+    }
     // create the new block with coinbase transaction
     shared_ptr<LeafNode> longest_leaf = *leaves.begin();
     auto blk = make_shared<Block>(simulation_time,longest_leaf->block);

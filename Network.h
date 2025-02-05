@@ -54,6 +54,7 @@ public:
   int id;
   bool fast;
   bool high_cpu;
+  bool currently_mining;
   vector<Link> peers; // stores links to all its peers
   shared_ptr<Block> genesis; // genesis block pointer
   set<shared_ptr<LeafNode>,CompareLeafNodePtr> leaves; // stores information about all leaf nodes of blockchain tree

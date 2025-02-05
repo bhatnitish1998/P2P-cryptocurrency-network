@@ -11,6 +11,7 @@ void Simulator::create_genesis()
         genesis->transactions.push_back(temp);
     }
 
+    cout<<" Created genesis block"<<endl;
     // add genesis block to all nodes
     for (int i = 0; i < number_of_nodes; i++)
     {
@@ -25,6 +26,7 @@ void Simulator::create_genesis()
 
         network.nodes[i].leaves.insert(temp);
     }
+    cout << " Added genesis block to all nodes" << endl;
 }
 
 // Populate the event queue with initial transactions
@@ -43,6 +45,7 @@ void Simulator::create_initial_transactions()
         auto e = Event(event_time,CREATE_TRANSACTION, obj);
         event_queue.push(e);
     }
+    cout << " Initialized event queue with " <<initial_number_of_transactions << " transactions" << endl;
 }
 
 void Simulator::initialize()
@@ -56,6 +59,7 @@ void Simulator::initialize()
 
 void Simulator::start()
 {
+    cout<< " Simulation started" << endl;
     // Process each type of event in event queue
     while (!event_queue.empty())
     {
