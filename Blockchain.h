@@ -51,6 +51,7 @@ public:
     vector<long long> balance; // balance of each peer in that chain for easy validation of transactions
 
     LeafNode(shared_ptr<Block> block, long long length);
+    friend ostream& operator<<(ostream& os, const LeafNode& leaf);
 
 };
 

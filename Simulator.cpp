@@ -18,12 +18,21 @@ void Simulator::create_genesis()
         network.nodes[i].genesis = genesis;
         network.nodes[i].block_ids_in_tree.insert({genesis->id, simulation_time});
 
-        // update leaves in each node with initial balance, transaction ids.
+        // update leaves in each node with initial balance, transaction ids and balance of each node
         auto temp = make_shared<LeafNode>(genesis, 1);
-        temp->balance[i] = initial_bitcoin;
-        for (const auto& x : genesis->transactions)
-            temp->transaction_ids.insert(x->id);
+        for (const auto& txn : genesis->transactions)
+        {
+            temp->transaction_ids.insert(txn->id);
+            if (txn->coinbase) temp->balance[txn->receiver] += txn->amount;
+            else
+            {
+                if (temp->balance[txn->sender] - txn->amount < 0)
+                    throw std::runtime_error("Invalid genesis block");
 
+                temp->balance[txn->sender] -= txn->amount;
+                temp->balance[txn->receiver] += txn->amount;
+            }
+        }
         network.nodes[i].leaves.insert(temp);
     }
     cout << " Added genesis block to all nodes" << endl;

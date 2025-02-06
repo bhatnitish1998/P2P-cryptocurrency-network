@@ -20,6 +20,7 @@ struct create_transaction_object
 {
     int creator_node_id;
     explicit create_transaction_object(int creator_node_id);
+    friend ostream& operator<<(ostream& os, const create_transaction_object& obj);
 };
 
 struct receive_transaction_object
@@ -29,6 +30,7 @@ struct receive_transaction_object
     shared_ptr<Transaction> txn;
 
     receive_transaction_object(int sender_node_id, int receiver_node_id, const shared_ptr<Transaction>& txn);
+    friend ostream& operator<<(ostream& os, const receive_transaction_object& obj);
 };
 
 struct receive_block_object
@@ -37,6 +39,7 @@ struct receive_block_object
     int receiver_node_id;
     shared_ptr<Block> blk;
     receive_block_object(int sender_node_id, int receiver_node_id, const shared_ptr<Block>& blk);
+    friend ostream& operator<<(ostream& os, const receive_block_object& obj);
 };
 
 struct block_mined_object
@@ -44,6 +47,7 @@ struct block_mined_object
     int miner_node_id;
     shared_ptr<Block> blk;
     explicit block_mined_object(int miner_node_id, const shared_ptr<Block>& blk);
+    friend ostream& operator<<(ostream& os, const block_mined_object& obj);
 };
 
 typedef variant<create_transaction_object, receive_transaction_object, receive_block_object, block_mined_object> VO;
@@ -59,6 +63,7 @@ public:
 
     // to sort based on time
     bool operator >(const Event& other) const;
+    friend ostream& operator<<(ostream& os, const Event& e);
 };
 
 typedef priority_queue<Event, vector<Event>, greater<>> EQ;

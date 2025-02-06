@@ -52,3 +52,18 @@ ostream& operator<<(ostream& os, const Block& block)
         os << *txn << endl;
     return os;
 }
+
+ostream& operator<<(ostream& os, const LeafNode& leaf)
+{
+    os << "Leaf length: " << leaf.length << endl;
+    os << "Block: " << *leaf.block;
+    os << "Transactions: ";
+    for (const auto x : leaf.transaction_ids)
+        os << x << "\t";
+    os << endl;
+    os << "Balance: ";
+    for (const auto x : leaf.balance)
+        os << x << "\t";
+    os << endl;
+    return os;
+}
