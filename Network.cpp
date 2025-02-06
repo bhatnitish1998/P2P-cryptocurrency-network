@@ -341,6 +341,9 @@ Network::Network()
             }
         }
         done = check_connected(al);
+
+        // store network to file if done
+        if(done) write_network_to_file(al,"network.txt");
     }
 
     // set up link speed and propagation delay for each peer

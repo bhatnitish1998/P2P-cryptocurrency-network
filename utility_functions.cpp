@@ -57,7 +57,7 @@ vector<int> choose_neighbours(int n, int k, vector<int> excluded)
 
 // checks if the given graph is connected using dfs
 bool check_connected(vector<vector<int>>& al)
-{
+{   
     int n = al.size();
     if (n == 0) return true;
 
@@ -85,4 +85,37 @@ bool check_connected(vector<vector<int>>& al)
     }
     // check if all nodes reachable
     return visited_count == n;
+}
+
+
+// Creates a file with name fname and write graphs nodes in it.
+void write_network_to_file(vector<vector<int>> &al,const string &fname)
+{
+    // directory name to store file
+    fs::path dir = "files";
+
+    // Check if the directory exists, if not create it
+    if (!fs::exists(dir)) {
+        fs::create_directories(dir);
+    }
+
+    string filepath = "files/" + fname;
+
+    ofstream file(filepath);
+
+    if(!file){
+        cerr << "An Error occured while opening file!" << endl;
+        return;
+    }
+    
+    // Store adjacency list in file
+     for (size_t node = 0; node < al.size(); node++) {
+        for (int neighbor : al[node]) {
+            if (node < neighbor) {
+                file << node << " " << neighbor << "\n";
+            }
+        }
+    }
+
+    file.close();
 }
