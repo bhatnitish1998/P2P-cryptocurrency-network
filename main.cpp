@@ -6,10 +6,11 @@
 #include "Simulator.h"
 #include "Event.h"
 #include <cstdlib>
+#include <fstream>
 
 // experiment constants
-int initial_bitcoin = 1000;
-int initial_number_of_transactions = 100;
+int initial_bitcoin = 100;
+int initial_number_of_transactions = 10;
 int propagation_delay_min = 10;
 int propagation_delay_max = 500;
 int transaction_amount_min = 5;
@@ -30,6 +31,7 @@ long long simulation_time = 0;
 long long total_hashing_power = 0;
 EQ event_queue;
 unsigned int global_seed = 911;
+Logger l;
 
 
 int main(int argc, char* argv[])

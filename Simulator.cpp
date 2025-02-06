@@ -60,7 +60,6 @@ void Simulator::initialize()
 void Simulator::start()
 {
     cout << " Simulation started" << endl;
-    cout << "---------------------LOGS -----------------------"<<endl;
     // Process each type of event in event queue
     while (!event_queue.empty())
     {
@@ -92,21 +91,19 @@ void Simulator::start()
             network.nodes[obj.miner_node_id].complete_mining(obj.blk);
         }
     }
-    cout << "---------------------LOGS -----------------------"<<endl;
-    cout << "Simulation completed, Writing stats to files" << endl;
+    cout << " Simulation completed, Writing stats to files" << endl;
 
     // Write stats file
     write_node_stats_to_file();
-    cout << "Stats written in ./files/ directory" << endl;
+    cout << " Stats written in ./files/ directory" << endl;
+    cout << " Logs written in ./files/logs.txt" << endl;
 }
 
 void Simulator::write_node_stats_to_file()
 {
     // Check if the directory exists, if not create it
     if (fs::path dir = "files"; !fs::exists(dir))
-    {
         fs::create_directories(dir);
-    }
 
 
     ofstream file;

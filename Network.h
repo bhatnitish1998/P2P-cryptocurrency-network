@@ -7,8 +7,11 @@
 #include <queue>
 #include "Blockchain.h"
 #include "Event.h"
+#include <filesystem>
+#include <fstream>
 
 using namespace std;
+namespace fs = filesystem;
 
 extern int transaction_amount_min;
 extern int transaction_amount_max;
@@ -22,8 +25,6 @@ extern long long total_hashing_power;
 extern int block_inter_arrival_time;
 extern int transaction_size;
 extern int mining_reward;
-
-
 extern EQ event_queue;
 
 
@@ -47,8 +48,6 @@ class Node
 private:
   // to generate unique node ids (equal to index in node vector)
   static int node_ticket;
-  // send transaction to particular link
-  void send_transaction_to_link(const shared_ptr<Transaction>& txn, Link &link) const;
 
 public:
   int id;
@@ -59,8 +58,8 @@ public:
   shared_ptr<Block> genesis; // genesis block pointer
   set<shared_ptr<LeafNode>,CompareLeafNodePtr> leaves; // stores information about all leaf nodes of blockchain tree
   queue<shared_ptr<Transaction>> mempool;
+  set <long long> transactions_in_pool;
   map<long long, long long> block_ids_in_tree; // stores received blocks <block id, time first seen>
-
   long long transactions_received;
   long long blocks_received;
 
@@ -71,6 +70,9 @@ public:
 
   //  receive a transaction from peer
   void receive_transaction(const receive_transaction_object &obj);
+
+  // send transaction to particular link
+  void send_transaction_to_link(const shared_ptr<Transaction>& txn, Link &link) const;
 
   // receive a block from peer
   void receive_block(const receive_block_object &obj);
@@ -96,5 +98,16 @@ public:
 
   Network();
 };
+
+class Logger
+{
+public:
+  ofstream log;
+
+  Logger();
+  ~Logger();
+};
+
+extern Logger l;
 
 #endif //NETWORK_H

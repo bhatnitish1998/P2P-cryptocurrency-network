@@ -48,4 +48,7 @@ struct block_stats
     block_stats();
     bool operator <(const block_stats & other) const;
 };
+
+
+
 #endif //SIMULATOR_H
