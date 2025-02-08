@@ -235,6 +235,11 @@ void Node::mine_block()
         blk->transactions.push_back(txn);
         }
     }
+    if (blk->transactions.size() <=1)
+    {
+            currently_mining = false;
+            return;
+    }
 
     l.log << "Time " << simulation_time << ": Node " << id << " started mining "<<blk->id<<endl;
     // compute mining time and create event at that time

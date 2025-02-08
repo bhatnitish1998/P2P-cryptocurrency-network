@@ -1,5 +1,8 @@
 #include "Simulator.h"
 
+#include <algorithm>
+#include <numeric>
+
 
 void Simulator::create_genesis()
 {
@@ -142,11 +145,16 @@ void Simulator::write_node_stats_to_file()
         long long blocks_created = 0;
         long long blocks_in_longest_chain = 0;
         long long created_blocks_in_longest_chain = 0;
-
         set<block_stats> blocks; // block statistics to be sorted by first seen time
         set<long long> block_ids; // set to keep track of already inserted blocks
 
+
         long long longest = (*network.nodes[i].leaves.begin())->block->id;
+
+        // variables for counting fork statistics
+        vector<long long> fork_lengths;
+        long long temp_fork_length = 0;
+        set< long long> block_ids_in_longest;
 
         // traverse other chains and get block stats
         for (const auto& leaf : network.nodes[i].leaves)
@@ -158,8 +166,21 @@ void Simulator::write_node_stats_to_file()
             shared_ptr<Block> temp_block = leaf->block;
             while (temp_block)
             {
-                if (block_ids.count(temp_block->id) != 0)
+                // if already reached block in the longest return
+                if (block_ids_in_longest.count(temp_block->id) != 0)
+                {
+                    fork_lengths.push_back(temp_fork_length);
+                    temp_fork_length = 0;
                     break;
+                }
+
+                // if block visited already just increment fork length
+                if (block_ids.count(temp_block->id) != 0)
+                {
+                    temp_fork_length++;
+                    temp_block = temp_block->parent_block;
+                    continue;
+                }
 
                 block_stats b;
                 b.block_id = temp_block->id;
@@ -175,10 +196,13 @@ void Simulator::write_node_stats_to_file()
                 {
                     b.part_of_longest = true;
                     blocks_in_longest_chain++;
+                    block_ids_in_longest.insert(temp_block->id);
                 }
-
                 else
+                {
+                    temp_fork_length++;
                     b.part_of_longest = false;
+                }
 
                 if (temp_block->transactions[0]->receiver == i && temp_block != network.nodes[i].genesis)
                 {
@@ -188,7 +212,6 @@ void Simulator::write_node_stats_to_file()
                 }
 
                 blocks.insert(b);
-
                 temp_block = temp_block->parent_block;
             }
         }
@@ -198,7 +221,14 @@ void Simulator::write_node_stats_to_file()
         file << "Number of blocks in longest chain: " << blocks_in_longest_chain << endl;
         file << "Fraction of blocks mined in longest chain: " <<
             static_cast<double>(created_blocks_in_longest_chain) / static_cast<double>(blocks_in_longest_chain) << endl;
+        file << "Number of forks: " << fork_lengths.size() << endl;
 
+        unsigned long long average_fork_length = 0;
+        if (!fork_lengths.empty())
+            average_fork_length = accumulate(fork_lengths.begin(), fork_lengths.end(), 0LL) / fork_lengths.size();
+        file << "Longest fork length:" << *max_element(fork_lengths.begin(), fork_lengths.end()) << endl;
+        file << "Shortest fork length:" << *min_element(fork_lengths.begin(), fork_lengths.end()) << endl;
+        file << "Average fork length: " << average_fork_length << endl;
         file << "Blockchain: " << endl;
         file << "Block_id, parent_block_id, first_seen_time, number_of_transactions, part_of_longest, mined by node" <<
             endl;
