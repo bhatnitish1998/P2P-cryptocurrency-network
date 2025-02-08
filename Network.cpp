@@ -61,9 +61,10 @@ void Node::send_transaction_to_link(const shared_ptr<Transaction>& txn, Link& li
 void Node::receive_transaction(const receive_transaction_object& obj)
 {
     transactions_received++;
-    // add transaction to the mempool
+    // add transaction to the mempool if not present
     if (transactions_in_pool.count(obj.txn->id)==0)
     {
+        transactions_in_pool.insert(obj.txn->id);
         mempool.push(obj.txn);
         l.log << "Time "<< simulation_time <<": Node " << id << " received transaction "<<obj.txn->id<<" from " << obj.sender_node_id<<endl;
     }
