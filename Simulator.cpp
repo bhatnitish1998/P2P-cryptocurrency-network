@@ -193,7 +193,6 @@ void Simulator::write_node_stats_to_file()
             }
         }
 
-
         file << "Blocks mined: " << blocks_created << endl;
         file << "Blocks mined in longest chain: " << created_blocks_in_longest_chain << endl;
         file << "Number of blocks in longest chain: " << blocks_in_longest_chain << endl;

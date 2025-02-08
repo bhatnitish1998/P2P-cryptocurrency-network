@@ -47,7 +47,7 @@ ostream& operator<<(ostream& os, const create_transaction_object& obj)
 ostream& operator<<(ostream& os, const receive_transaction_object& obj)
 {
     os << "Receive transaction object" << endl;
-    os << "Sender: " << obj.sender_node_id << " Receiver: " << obj.receiver_node_id << "Transaction id: " << obj.txn->id
+    os << "Sender: " << obj.sender_node_id << " Receiver: " << obj.receiver_node_id << " Transaction id: " << obj.txn->id
         << endl;
     return os;
 }
@@ -55,7 +55,7 @@ ostream& operator<<(ostream& os, const receive_transaction_object& obj)
 ostream& operator<<(ostream& os, const receive_block_object& obj)
 {
     os << "Receive block object" << endl;
-    os << "Sender: " << obj.sender_node_id << " Receiver: " << obj.receiver_node_id << "Block id: " << obj.blk->id <<
+    os << "Sender: " << obj.sender_node_id << " Receiver: " << obj.receiver_node_id << " Block id: " << obj.blk->id <<
         endl;
     return os;
 }

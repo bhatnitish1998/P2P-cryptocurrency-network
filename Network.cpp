@@ -65,7 +65,7 @@ void Node::receive_transaction(const receive_transaction_object& obj)
     if (transactions_in_pool.count(obj.txn->id)==0)
     {
         mempool.push(obj.txn);
-        l.log << "Time "<< simulation_time <<": Node " << id << " received transaction "<<obj.txn->id<<endl;
+        l.log << "Time "<< simulation_time <<": Node " << id << " received transaction "<<obj.txn->id<<" from " << obj.sender_node_id<<endl;
     }
 
     // if free start mining
@@ -89,7 +89,7 @@ void Node::receive_block(const receive_block_object& obj)
         return;
 
     blocks_received++;
-    l.log<< "Time "<< simulation_time <<": Node " << id << " received block "<<obj.blk->id<<endl;
+    l.log<< "Time "<< simulation_time <<": Node " << id << " received block "<<obj.blk->id<<" from "<<obj.sender_node_id<<endl;
 
     // if block received before parent
     if (block_ids_in_tree.count(obj.blk->parent_block->id) == 0)
@@ -231,8 +231,8 @@ void Node::mine_block()
                 temp_balance[txn->sender]-= txn->amount;
                 temp_balance[txn->receiver]+= txn->amount;
             }
-        }
         blk->transactions.push_back(txn);
+        }
     }
 
     l.log << "Time " << simulation_time << ": Node " << id << " started mining "<<blk->id<<endl;
@@ -263,7 +263,7 @@ void Node::complete_mining(const shared_ptr<Block>&  blk)
         l.log << "Time " << simulation_time << ": Node " << id << " mining event ignored "<<blk->id<<endl;
         for (const auto& txn: blk->transactions)
         {
-            if (transactions_in_pool.count(txn->id) == 0)
+            if (transactions_in_pool.count(txn->id) == 0 && !txn->coinbase)
             {
                 mempool.push(txn);
                 transactions_in_pool.insert(txn->id);
