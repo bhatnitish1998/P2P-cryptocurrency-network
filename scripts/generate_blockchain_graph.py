@@ -2,11 +2,18 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from collections import defaultdict,deque
 import os
+import glob
 
 def initialize_path():
-    input_filepath = '../files/blockchain.txt'  
-    output_folder = '../output'
-    return input_filepath,output_folder
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir) 
+
+    # Create paths relative to the script directory
+    input_folder = os.path.join(project_root, "files")
+    # create graph for each node
+    input_files = glob.glob(os.path.join(input_folder, "Node_*.txt"))
+    output_folder = os.path.join(project_root, "output")
+    return input_files,output_folder
 
 
 def load_blockchain_graph_from_file(filepath):
@@ -41,7 +48,7 @@ def load_blockchain_graph_from_file(filepath):
     
     return graph
 
-def assign_positions(graph, root, dx=4.0, dy=3.0):
+def assign_positions(graph, root, dx=4.0, dy=1.0):
     """Assigns x, y positions using BFS."""
     pos = {}  # Store node positions
     level_nodes = defaultdict(list)  # Nodes at each level
@@ -69,33 +76,35 @@ def assign_positions(graph, root, dx=4.0, dy=3.0):
 
     return pos
 
-def plot_blockchain_graph(graph,node_colors,directory):
+def plot_blockchain_graph(graph,node_colors,directory,output_filename):
     """
     plots the blocks chain graph based on position.
     """
-    pos = assign_positions(graph, root=0, dx=2.0, dy=1.5)
+    pos = assign_positions(graph, root=0, dx=12.0, dy=18)
     num_nodes = len(graph.nodes) 
     
     # Scale width based on #nodes
-    width = max(10, num_nodes * 1.05)  
-    plt.figure(figsize=(width, 10))  
-    nx.draw(graph,pos=pos,edge_color='black',node_color=node_colors,node_size=1000,with_labels=True,node_shape='s')
+    width = max(10, num_nodes * 2)  
+    plt.figure(figsize=(width, 12))  
+    nx.draw(graph.reverse(),pos=pos,edge_color='black',node_color=node_colors,node_size=3000,with_labels=True,font_size=18,node_shape='s')
 
-    # Display the graph
     plt.title("block chain visualization")
     
     # create targte directory if not exists
     os.makedirs(directory, exist_ok=True)
     
     # Save the figure as a PNG file within the given directory
-    output_file = os.path.join(directory, 'blockchain_graph.png')
+    output_file = os.path.join(directory, output_filename)
     plt.savefig(output_file, format='png')
     plt.close()
 
 if __name__ == "__main__":
-    input_filepath,output_folder=initialize_path()
-    blockchain_graph = load_blockchain_graph_from_file(input_filepath)
-    # print("Edges:", list(blockchain_graph)) 
-    node_colors = ['lightblue' if blockchain_graph.degree(node) >= 2 else 'lightgreen' for node in blockchain_graph.nodes()]
-    plot_blockchain_graph(blockchain_graph,node_colors,output_folder)
+    input_files,output_folder=initialize_path()
+    for input_filepath in input_files:
+        output_filename = os.path.splitext(os.path.basename(input_filepath))[0] + ".png"
+        # print(output_filename)
+        blockchain_graph = load_blockchain_graph_from_file(input_filepath)
+        # print("Edges:", list(blockchain_graph)) 
+        node_colors = ['lightblue' if blockchain_graph.degree(node) >= 2 else 'lightgreen' for node in blockchain_graph.nodes()]
+        plot_blockchain_graph(blockchain_graph,node_colors,output_folder,output_filename)
 

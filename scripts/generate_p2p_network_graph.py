@@ -3,8 +3,12 @@ import networkx as nx
 import os
 
 def initialize_path():
-    input_filepath = '../files/network.txt'  
-    output_folder = '../output'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir) 
+
+    # Create paths relative to the script directory
+    input_filepath = os.path.join(project_root, "files", "network.txt")
+    output_folder = os.path.join(project_root, "output")
     return input_filepath,output_folder
 
 def load_network_graph_from_file(filepath):
@@ -20,11 +24,12 @@ def load_network_graph_from_file(filepath):
 def plot_network_graph(graph, directory):
     layout = nx.spring_layout(graph)
     num_nodes = len(graph.nodes)  
+    
     # Scale size based on nodes
     size = max(10, num_nodes * 1.05)  
     # print(size)
     plt.figure(figsize=(size, size))
-    nx.draw(graph, layout,edge_color='black',node_color='lightgreen',node_size=2000,with_labels=True,)
+    nx.draw(graph, layout,edge_color='black',node_color='lightgreen',node_size=2200,font_size=24,with_labels=True,)
     
     # create targte directory if not exists
     os.makedirs(directory, exist_ok=True)
