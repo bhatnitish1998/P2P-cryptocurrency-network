@@ -224,10 +224,17 @@ void Simulator::write_node_stats_to_file()
         file << "Number of forks: " << fork_lengths.size() << endl;
 
         unsigned long long average_fork_length = 0;
+        long long shortest_fork_length = 0;
+        long long longest_fork_length = 0;
+
         if (!fork_lengths.empty())
-            average_fork_length = accumulate(fork_lengths.begin(), fork_lengths.end(), 0LL) / fork_lengths.size();
-        file << "Longest fork length:" << *max_element(fork_lengths.begin(), fork_lengths.end()) << endl;
-        file << "Shortest fork length:" << *min_element(fork_lengths.begin(), fork_lengths.end()) << endl;
+        {
+            average_fork_length  = accumulate(fork_lengths.begin(), fork_lengths.end(), 0LL) / fork_lengths.size();
+            longest_fork_length  = *max_element(fork_lengths.begin(), fork_lengths.end());
+            shortest_fork_length = *min_element(fork_lengths.begin(), fork_lengths.end());
+        }
+        file << "Longest fork length:" << longest_fork_length << endl;
+        file << "Shortest fork length:" << shortest_fork_length << endl;
         file << "Average fork length: " << average_fork_length << endl;
         file << "Blockchain: " << endl;
         file << "Block_id, parent_block_id, first_seen_time, number_of_transactions, part_of_longest, mined by node" <<
