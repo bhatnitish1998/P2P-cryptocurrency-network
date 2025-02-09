@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import os
+import matplotlib.patches as mpatches
 
 def initialize_path():
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -34,7 +35,11 @@ def plot_network_graph(graph, directory):
     # create targte directory if not exists
     os.makedirs(directory, exist_ok=True)
     
+    legend_patch = [
+        mpatches.Patch(color='lightgreen', label='Peer / Node')
+    ]   
     # Save the figure as a PNG file within the given directory
+    plt.legend(handles=legend_patch, loc='upper left' ,fontsize=24)
     output_file = os.path.join(directory, 'network_graph.png')
     plt.savefig(output_file, format='png')
     plt.close()

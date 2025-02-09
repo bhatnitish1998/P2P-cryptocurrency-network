@@ -3,6 +3,7 @@ import networkx as nx
 from collections import defaultdict,deque
 import os
 import glob
+import matplotlib.patches as mpatches
 
 def initialize_path():
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -18,6 +19,7 @@ def initialize_path():
 
 def load_blockchain_graph_from_file(filepath):
     graph = nx.DiGraph()
+    node_mining_data = {}
     # print(graph)
     edges = []  #
     with open(filepath, 'r') as f:
@@ -41,12 +43,15 @@ def load_blockchain_graph_from_file(filepath):
             continue  # Skip invalid lines
         block_id = int(parts[0].strip())
         parent_id = int(parts[1].strip())
+        mined_by = int(parts[5].strip())
         if parent_id != -1:
             edges.append((parent_id, block_id))
 
+        node_mining_data[block_id] = mined_by
     graph.add_edges_from(edges)
+    # print(filepath,node_mining_data)
     
-    return graph
+    return graph,node_mining_data
 
 def assign_positions(graph, root, dx=4.0, dy=1.0):
     """Assigns x, y positions using BFS."""
@@ -83,13 +88,18 @@ def plot_blockchain_graph(graph,node_colors,directory,output_filename):
     pos = assign_positions(graph, root=0, dx=12.0, dy=18)
     num_nodes = len(graph.nodes) 
     
+    legend_patches = [
+        mpatches.Patch(color='#FFA07A', label='Block Mined by this Node'),
+        mpatches.Patch(color='lightblue', label='Non Leaf Block'),
+        mpatches.Patch(color='lightgreen', label='Leaf Block')
+    ]   
     # Scale width based on #nodes
     width = max(10, num_nodes * 2)  
     plt.figure(figsize=(width, 12))  
     nx.draw(graph.reverse(),pos=pos,edge_color='black',node_color=node_colors,node_size=3000,with_labels=True,font_size=18,node_shape='s')
 
     plt.title("block chain visualization")
-    
+    plt.legend(handles=legend_patches, loc='upper left' ,fontsize=24)
     # create targte directory if not exists
     os.makedirs(directory, exist_ok=True)
     
@@ -103,8 +113,14 @@ if __name__ == "__main__":
     for input_filepath in input_files:
         output_filename = os.path.splitext(os.path.basename(input_filepath))[0] + ".png"
         # print(output_filename)
-        blockchain_graph = load_blockchain_graph_from_file(input_filepath)
+        blockchain_graph,node_mining_data = load_blockchain_graph_from_file(input_filepath)
         # print("Edges:", list(blockchain_graph)) 
-        node_colors = ['lightblue' if blockchain_graph.degree(node) >= 2 else 'lightgreen' for node in blockchain_graph.nodes()]
+        # Assign colors based on mining node and degree
+        node_colors = [
+            '#FFA07A' if node_mining_data.get(node, 0) == 1 else 
+            ('lightblue' if node == 0 or blockchain_graph.degree(node) >= 2 else 'lightgreen') 
+            for node in blockchain_graph.nodes()
+        ]
+
         plot_blockchain_graph(blockchain_graph,node_colors,output_folder,output_filename)
 

@@ -38,6 +38,10 @@ Blocks mined: 1
 Blocks mined in longest chain: 1  
 Number of blocks in longest chain: 21  
 Fraction of blocks mined in longest chain: 0.047619  
+Number of forks: 33  
+Longest fork length:3  
+Shortest fork length:1  
+Average fork length: 1  
 
 Entire blockchain detail  
 
