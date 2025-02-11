@@ -114,14 +114,14 @@ void Simulator::start()
 void Simulator::write_node_stats_to_file()
 {
     // Check if the directory exists, if not create it
-    if (fs::path dir = "files"; !fs::exists(dir))
+    if (fs::path dir = "Output/Node_Files"; !fs::exists(dir))
         fs::create_directories(dir);
 
 
     ofstream file;
     for (int i = 0; i < number_of_nodes; i++)
     {
-        string filepath = "files/Node_" + std::to_string(i) + ".txt";
+        string filepath = "Output/Node_Files/Node_" + std::to_string(i) + ".txt";
         file.open(filepath);
 
         if (!file)
@@ -221,6 +221,12 @@ void Simulator::write_node_stats_to_file()
         file << "Number of blocks in longest chain: " << blocks_in_longest_chain << endl;
         file << "Fraction of blocks mined in longest chain: " <<
             static_cast<double>(created_blocks_in_longest_chain) / static_cast<double>(blocks_in_longest_chain) << endl;
+        if ( blocks_created !=0 )
+            file << "Fraction of mined blocks not in longest chain: " << static_cast<double>(blocks_created - created_blocks_in_longest_chain)/static_cast<double> (blocks_created)
+        << endl;
+        else
+            file << "Fraction of mined blocks not in longest chain: " << 0 << endl;
+
         file << "Number of forks: " << fork_lengths.size() << endl;
 
         unsigned long long average_fork_length = 0;

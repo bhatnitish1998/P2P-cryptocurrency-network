@@ -58,7 +58,7 @@ vector<int> choose_neighbours(int n, int k, vector<int> excluded)
 // checks if the given graph is connected using dfs
 bool check_connected(vector<vector<int>>& al)
 {   
-    int n = al.size();
+    int n = static_cast<int>(al.size());
     if (n == 0) return true;
 
     // initialize data structures
@@ -92,19 +92,19 @@ bool check_connected(vector<vector<int>>& al)
 void write_network_to_file(vector<vector<int>> &al,const string &fname)
 {
     // directory name to store file
-    fs::path dir = "files";
+    fs::path dir = "Output/Temp_files/";
 
     // Check if the directory exists, if not create it
     if (!fs::exists(dir)) {
         fs::create_directories(dir);
     }
 
-    string filepath = "files/" + fname;
+    string filepath = "Output/Temp_files/" + fname;
 
     ofstream file(filepath);
 
     if(!file){
-        cerr << "An Error occured while opening file!" << endl;
+        cerr << "An Error occurred while opening file!" << endl;
         return;
     }
     

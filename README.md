@@ -7,7 +7,7 @@ This project is an introduction to blockchain and cryptocurrencies, implementing
 Compiling Code: g++ *.cpp -o main  
 Running program: ./main <number_of_nodes> <percent_fast> <percent_high_cpu> <mean_transaction_inter_arrival_time_in_ms> <block_inter_arrival_time_in_sec>  
 
-Example:./main 10 4 4 100 1   
+Example:./main 10 50 30 100 600   
 
 ## Changing configuration
 Modify experimental parameters in main.cpp under the // experiment constants comment section. Key variables include:  

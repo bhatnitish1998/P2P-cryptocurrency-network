@@ -370,9 +370,9 @@ Network::Network()
 
 Logger::Logger()
 {
-    if (fs::path dir = "files"; !fs::exists(dir))
+    if (fs::path dir = "Output/Log"; !fs::exists(dir))
         fs::create_directories(dir);
-    log.open("files/log.txt");
+    log.open("Output/Log/log.txt");
 }
 
 Logger::~Logger()
