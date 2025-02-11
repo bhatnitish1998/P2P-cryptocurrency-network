@@ -10,12 +10,11 @@ def initialize_path():
     project_root = os.path.dirname(script_dir) 
 
     # Create paths relative to the script directory
-    input_folder = os.path.join(project_root, "files")
+    input_folder = os.path.join(project_root, "Output/Node_Files")
     # create graph for each node
     input_files = glob.glob(os.path.join(input_folder, "Node_*.txt"))
-    output_folder = os.path.join(project_root, "output")
+    output_folder = os.path.join(project_root, "Output/Blockchains")
     return input_files,output_folder
-
 
 def load_blockchain_graph_from_file(filepath):
     graph = nx.DiGraph()
@@ -123,4 +122,5 @@ if __name__ == "__main__":
         ]
 
         plot_blockchain_graph(blockchain_graph,node_colors,output_folder,output_filename)
+        print("created Blockchain",output_filename)
 

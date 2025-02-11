@@ -8,8 +8,8 @@ def initialize_path():
     project_root = os.path.dirname(script_dir) 
 
     # Create paths relative to the script directory
-    input_filepath = os.path.join(project_root, "files", "network.txt")
-    output_folder = os.path.join(project_root, "output")
+    input_filepath = os.path.join(project_root, "Output/Temp_files", "network.txt")
+    output_folder = os.path.join(project_root, "Output/Network")
     return input_filepath,output_folder
 
 def load_network_graph_from_file(filepath):
